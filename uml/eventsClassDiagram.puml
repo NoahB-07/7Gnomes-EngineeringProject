@@ -1,0 +1,31 @@
+@startuml
+
+Geese <-- Room : setSpawnRate
+VendingMachine <-- Room: creates
+VendingMachine <-- Player: interacts
+Player <-- VendingMachine: givesHealth
+
+class Room{
+    Walls: ARR of Items
+    Furnishings: ARR of Items
+    void startRoomClock()
+    void makeRoom()
+}
+
+class Geese{
+    spawnRate: float
+    void setSpawnRate()
+}
+
+class VendingMachine{
+    usedMachine: Boolean
+    int giveHealth()
+}
+
+class Player{
+    int health
+    void interact()
+    void heal()
+}
+
+@enduml
