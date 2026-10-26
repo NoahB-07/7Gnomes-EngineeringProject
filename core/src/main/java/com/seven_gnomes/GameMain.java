@@ -6,28 +6,30 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-
+import com.seven_gnomes.Entities.Player;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class GameMain extends ApplicationAdapter {
 
     TextureAtlas atlas;
-    Sprite characterSprite;
     Texture backgroundTexture;
     SpriteBatch batch;
     ScreenViewport viewport;
     OrthographicCamera camera;
 
+    Player player;
+
     @Override
     public void create() {
         atlas = new TextureAtlas(Utils.getInternalPath("atlas/Game_Atlas.atlas"));
-        characterSprite = atlas.createSprite("dot");
-        characterSprite.setSize(25,25);
+
+        player = new Player(atlas,"dot");
+        player.setSpriteSize(50,50);
+
         backgroundTexture = new Texture("greybox.png");
         backgroundTexture.setWrap(Texture.TextureWrap.Repeat,Texture.TextureWrap.Repeat);
 
@@ -48,19 +50,19 @@ public class GameMain extends ApplicationAdapter {
         float delta = Gdx.graphics.getDeltaTime();
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            characterSprite.translateY(-speed * delta);
+            player.move(false,false);
             camera.translate(0,-speed * delta);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            characterSprite.translateX(-speed * delta);
+            player.move(true,false);
             camera.translate(-speed * delta,0);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            characterSprite.translateY(speed * delta);
+            player.move(false,true);
             camera.translate(0,speed * delta);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            characterSprite.translateX(speed * delta);
+            player.move(true,true);
             camera.translate(speed * delta,0);
         }
 
@@ -90,11 +92,10 @@ public class GameMain extends ApplicationAdapter {
         batch.begin();
 
         batch.draw(backgroundTexture,drawX,drawY,worldWidth,worldHeight,u,v2,u2,v);
-        characterSprite.draw(batch);
-        characterSprite.setCenter(viewport.getCamera().position.x,viewport.getCamera().position.y);
+        player.draw(batch,viewport);
 
         batch.end();
-    }
+  }
 
     @Override
     public void dispose() {
