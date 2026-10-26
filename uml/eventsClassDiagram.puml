@@ -22,10 +22,57 @@ class VendingMachine{
     int giveHealth()
 }
 
-class Player{
+
+class Player {
+    string name
     int health
+    float positionX
+    float positionY
+    int movementSpeed
+    int escapeProgress
+
+    void move()
+    void pickUpItem()
+    void useItem()
     void interact()
-    void heal()
 }
+
+class Inventory {
+    List<Item> items 
+    int maxCapacity
+
+    bool addItem()
+    bool removeItem()
+    Item findItem()
+    void displayItems()
+}
+class Goose {
+    int gooseID 
+    int hungerLevel 
+    float positionX 
+    float positionY 
+    bool distracted 
+    float movementSpeed 
+
+    void chasePlayer()
+    void  eatFood ()
+    int attackPlayer()
+    bool getDistracted()
+    void disappear()
+    void actDistracted()
+}
+class AllGeese {
+    int gooseCount 
+    int maxGeese 
+    float spawnRate 
+    float groupSpeedMultiplier 
+     
+
+    void spawnGoose() 
+    void removeGoose()
+    void updateGeese() 
+    int getGooseCount() 
+}
+
 
 @enduml
