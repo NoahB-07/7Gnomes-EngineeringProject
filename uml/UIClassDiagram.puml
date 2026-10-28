@@ -1,0 +1,44 @@
+@startuml
+class Player {
+    int currentHealth
+    int maxHealth
+    list<item> items
+    damaged()
+}
+
+class Map {
+    generateLayout()
+}
+
+class AssetLoader {
+    list<texture> assetList
+    loadAsset()
+}
+
+class HUD {
+    int currentHealth
+    int maxHealth
+    int gameTimer
+    render()
+}
+
+class Cursor {
+    texture currentSprite
+    changeSprite()
+    move()
+}
+
+class Timer {
+    int startTime
+    int currentTime
+    int duration
+    update()
+    onFinish()
+}
+
+Player <|-- HUD
+HUD <|-- Cursor
+HUD <|-- Timer
+Map <|-- Timer
+
+@enduml
