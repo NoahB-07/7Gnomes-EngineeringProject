@@ -1,112 +1,105 @@
 package com.seven_gnomes;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.graphics.FPSLogger;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.seven_gnomes.Entities.Player;
+import com.badlogic.gdx.graphics.profiling.GLProfiler;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class GameMain extends ApplicationAdapter {
+public class GameMain extends Game {
 
-    TextureAtlas atlas;
-    Texture backgroundTexture;
-    SpriteBatch batch;
-    ScreenViewport viewport;
-    OrthographicCamera camera;
+    static final float WORLD_WIDTH = 32f;
+    static final float WORLD_HEIGHT = 32f;
+    public static final float UNIT_SCALE = 1f/32f;
 
-    Player player;
+    private SpriteBatch batch;
+    private FitViewport viewport;
+    private OrthographicCamera camera;
+    private AssetService assetService;
+    private GLProfiler glProfiler;
+    private FPSLogger fpsLogger;
+
+    private final Map<Class<? extends Screen>, Screen> screenCache = new HashMap<>();
 
     @Override
     public void create() {
-        atlas = new TextureAtlas(Utils.getInternalPath("atlas/Game_Atlas.atlas"));
-
-        player = new Player(atlas,"dot");
-        player.setSpriteSize(50,50);
-
-        backgroundTexture = new Texture("greybox.png");
-        backgroundTexture.setWrap(Texture.TextureWrap.Repeat,Texture.TextureWrap.Repeat);
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
-        viewport = new ScreenViewport(camera);
+        viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
+        assetService = new AssetService(new InternalFileHandleResolver());
+        glProfiler = new GLProfiler(Gdx.graphics);
+        fpsLogger = new FPSLogger();
+
+        glProfiler.enable();
+        addScreen(new GameScreen(this));
+        setScreen(GameScreen.class);
+    }
+
+
+    public void addScreen(Screen screen){
+        screenCache.put(screen.getClass(), screen);
+    }
+
+    public void setScreen(Class<? extends Screen> screenClass){
+        Screen screen = screenCache.get(screenClass);
+        if (screen == null){
+            throw new GdxRuntimeException("No screen with class " + screenClass + " found in the screen cache");
+        }
+        super.setScreen(screen);
+    }
+
+    public SpriteBatch getBatch() {
+        return batch;
+    }
+
+    public FitViewport getViewport() {
+        return viewport;
+    }
+
+    public OrthographicCamera getCamera() {
+        return camera;
+    }
+
+    public AssetService getAssetService() {
+        return assetService;
     }
 
     @Override
     public void render() {
-        input();
-        logic();
-        draw();
+        glProfiler.reset();
+        Gdx.gl.glClearColor(0f,0f,0f,1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        super.render();
+
+        Gdx.graphics.setTitle("Goose Game - Draw call: " + glProfiler.getDrawCalls());
+        fpsLogger.log();
     }
-
-    private void input(){
-        float speed = 250;
-        float delta = Gdx.graphics.getDeltaTime();
-
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            player.move(false,false);
-            camera.translate(0,-speed * delta);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            player.move(true,false);
-            camera.translate(-speed * delta,0);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            player.move(false,true);
-            camera.translate(0,speed * delta);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            player.move(true,true);
-            camera.translate(speed * delta,0);
-        }
-
-    }
-
-    private void logic(){}
-
-    private void draw(){
-        ScreenUtils.clear(Color.BLACK);
-        viewport.apply();
-        batch.setProjectionMatrix(viewport.getCamera().combined);
-
-
-        float backgroundScale = 0.25f;
-        float worldWidth = viewport.getWorldWidth();
-        float worldHeight = viewport.getWorldHeight();
-        float drawX = viewport.getCamera().position.x - (worldWidth / 2f);
-        float drawY = viewport.getCamera().position.y - (worldHeight / 2f);
-        float scaledX = backgroundTexture.getWidth() * backgroundScale;
-        float scaledY = backgroundTexture.getHeight() * backgroundScale;
-
-        float u = drawX / scaledX;
-        float v = drawY / scaledY;
-        float u2 = (drawX + worldWidth) / scaledX;
-        float v2 = (drawY + worldHeight) / scaledY;
-
-        batch.begin();
-
-        batch.draw(backgroundTexture,drawX,drawY,worldWidth,worldHeight,u,v2,u2,v);
-        player.draw(batch,viewport);
-
-        batch.end();
-  }
 
     @Override
     public void dispose() {
+        screenCache.values().forEach(Screen::dispose);
+        screenCache.clear();
+        assetService.debugDiagnositis();
+        assetService.dispose();
+
         batch.dispose();
-        atlas.dispose();
-        backgroundTexture.dispose();
     }
 
 
     @Override
-    public void resize(int width, int height) {
-        viewport.update(width,height,true);
+    public void resize(int width, int height) {viewport.update(width,height,true);
     }
 }
