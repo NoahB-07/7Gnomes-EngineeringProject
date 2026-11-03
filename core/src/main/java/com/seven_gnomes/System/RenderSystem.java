@@ -24,14 +24,14 @@ public class RenderSystem extends SortedIteratingSystem implements Disposable {
     private final Viewport viewport;
     private final OrthographicCamera camera;
 
-    public RenderSystem(SpriteBatch batch, Viewport viewport){
+    public RenderSystem(SpriteBatch batch, Viewport viewport, OrthographicCamera camera){
         super(
             Family.all(Transform.class, Graphic.class).get(),
             Comparator.comparing(Transform.MAPPER::get)
         );
         this.batch = batch;
         this.viewport = viewport;
-        camera = (OrthographicCamera) viewport.getCamera();
+        this.camera = camera;
         mapRenderer =  new OrthogonalTiledMapRenderer(null, GameMain.UNIT_SCALE,batch);
     }
 
@@ -43,7 +43,9 @@ public class RenderSystem extends SortedIteratingSystem implements Disposable {
         mapRenderer.render();
 
         forceSort();
+        batch.begin();
         super.update(deltaTime);
+        batch.end();
     }
 
     @Override

@@ -2,41 +2,40 @@ package com.seven_gnomes;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.EntitySystem;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import com.seven_gnomes.System.RenderSystem;
+import com.seven_gnomes.Tiled.TiledAshleyUtils;
+import com.seven_gnomes.Tiled.TiledService;
+
+import java.util.function.Consumer;
 
 public class GameScreen extends ScreenAdapter {
 
-    private final Game game;
-    private final AssetService assetService;
-    private final Viewport viewport;
-    private final OrthographicCamera camera;
-    private final SpriteBatch batch;
+    private final TiledService tiledService;
+    private final TiledAshleyUtils tiledAshleyUtils;
 
     //if fps drops change engine to pooled engine
     private final Engine engine;
 
 
     public GameScreen(GameMain game) {
-        this.game = game;
-        assetService = game.getAssetService();
-        viewport = game.getViewport();
-        camera = game.getCamera();
-        batch = game.getBatch();
+        tiledService = new TiledService(game.getAssetService());
         engine = new Engine();
+        tiledAshleyUtils = new TiledAshleyUtils(engine,game.getAssetService());
 
-        engine.addSystem(new RenderSystem(batch,viewport));
+        engine.addSystem(new RenderSystem(game.getBatch(),game.getViewport(), game.getCamera()));
     }
 
     @Override
     public void show() {
-        assetService.load(MapAsset.MAIN);
-        engine.getSystem(RenderSystem.class).setMap(assetService.getAsset(MapAsset.MAIN));
+        Consumer<TiledMap> renderConsumer = engine.getSystem(RenderSystem.class)::setMap;
+        tiledService.setMapChangeConsumer(renderConsumer);
+        tiledService.setLoadObjectConsumer(tiledAshleyUtils::onloadObject);
+
+        TiledMap tiledMap = tiledService.loadMap(MapAsset.MAIN);
+        tiledService.setMap(tiledMap);
     }
 
     @Override
@@ -48,6 +47,8 @@ public class GameScreen extends ScreenAdapter {
     public void render(float delta) {
         delta = Math.min(delta, 1/30f);
         engine.update(delta);
+
+
 
     }
 
