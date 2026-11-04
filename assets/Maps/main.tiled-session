@@ -1,0 +1,61 @@
+{
+    "activeFile": "main.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "Bob.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 0.33
+        },
+        "Maps/flooring.tsx": {
+            "scaleInDock": 1
+        },
+        "Character.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 8
+        },
+        "bob.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 2
+        },
+        "flooring.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "main.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 513.3333333333333,
+                "y": 501.33333333333337
+            }
+        }
+    },
+    "last.externalTilesetPath": "Maps",
+    "last.imagePath": "Maps",
+    "map.height": 32,
+    "map.lastUsedFormat": "tmx",
+    "map.width": 32,
+    "openFiles": [
+        "main.tmx",
+        "bob.tsx"
+    ],
+    "project": "main.tiled-project",
+    "recentFiles": [
+        "bob.tsx",
+        "main.tmx",
+        "Bob.tsx",
+        "Character.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    },
+    "tileset.type": 1
+}

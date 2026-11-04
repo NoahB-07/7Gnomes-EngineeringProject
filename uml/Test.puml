@@ -1,0 +1,64 @@
+@startuml
+class GameUtils{
+	duckSpawnRate: Integer
+	void startGame()
+	void endGame()
+	time checkTime()
+	bool projectilHit()
+	item pickUpItem()
+	void spawnDuck()
+	bool changeHotBarSlot()
+}
+
+interface Ievents{
+	bool checkTimeForEvent()
+}
+
+class VendingMachineEvent{
+	bool heal()
+	bool reloadFeed()
+}
+
+class UIUtil{
+	time getTime()
+	int getHealth()
+	list<item> getHotbar()
+	bool generateRoom()
+}
+
+interface Ientities{}
+
+interface Icharacter{}
+
+interface Iprojectile{}
+
+Interface Igoose{}
+
+class Rlayer{
+	MAXSPEED: Integer
+	MAXHEALTH: Integer
+	speed: Integer
+	health: Integer
+}
+
+class Room{
+	itemsInRoom: map<location,item>
+	bool startRoomClock()
+}
+
+class Timer{
+	time: time
+	time updateTime()
+	bool startTimer()
+	bool stopTimer()
+}
+
+interface iItem{}
+
+class Item1{}
+
+Ientities --|> Icharacter
+Ientities --|> Iprojectile
+Ientities --|> Igoose
+
+@enduml
