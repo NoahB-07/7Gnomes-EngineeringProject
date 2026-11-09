@@ -1,4 +1,4 @@
-package com.seven_gnomes;
+package com.seven_gnomes.Components;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -15,18 +15,21 @@ public class Timer {
     public Label timerLabel;
     public Table timerTable;
     final FitViewport viewport;
+    boolean pause;
 
-    
+
     public Timer(final FitViewport viewport){
-    
+
         this.viewport = viewport;
         waitTime = 1f;
         secondTracker = 0;
         minuteTracker = 5;
         timeSinceLastUpdate = 0f;
+        pause = false;
+
         timerLabel = new Label(String.format("%02d : %02d", minuteTracker, secondTracker), new Label.LabelStyle(new BitmapFont(), Color.RED));
         timerLabel.setFontScale(0.1f);
-        
+
         timerTable = new Table();
         timerTable.setVisible(true);
         timerTable.setPosition(viewport.getWorldWidth()*0.1f, viewport.getWorldHeight()*0.98f);
@@ -36,25 +39,25 @@ public class Timer {
 
     //method to make timer work
     public void update(float deltaTime) {
-        
-        timeSinceLastUpdate += deltaTime;
-        
-        if(timeSinceLastUpdate >= waitTime) {
-            timeSinceLastUpdate = 0f;
-            
-            if(secondTracker == 0){
-                if(minuteTracker == 0){
-                    //game over
-                }else{
-                    minuteTracker--;
-                    secondTracker = 59;
-                }
-            }else{
-                secondTracker--;
-            }
+        if(!pause){
+            timeSinceLastUpdate += deltaTime;
 
-            timerLabel.setText(String.format("%02d : %02d", minuteTracker, secondTracker));
-            
+            if(timeSinceLastUpdate >= waitTime) {
+                timeSinceLastUpdate = 0f;
+
+                if (secondTracker == 0) {
+                    if (minuteTracker == 0) {
+                        //game over
+                    } else {
+                        minuteTracker--;
+                        secondTracker = 59;
+                    }
+                } else {
+                    secondTracker--;
+                }
+
+                timerLabel.setText(String.format("%02d : %02d", minuteTracker, secondTracker));
+            }
         }
     }
     public Table getTimer(){
@@ -62,5 +65,12 @@ public class Timer {
 
     }
 
-    
+    public void pause(){
+        pause = true;
+    }
+
+    public void unpause(){
+        pause = false;
+    }
+
 }
