@@ -14,18 +14,12 @@ public class Timer {
     float timeSinceLastUpdate;
     public Label timerLabel;
     public Table timerTable;
-    public FitViewport viewport;
-    final GameMain game;
+    final FitViewport viewport;
 
-    private float worldHeight;
-    private float worldWidth;
     
-    public Timer(final GameMain game){
-        this.game = game;
-        viewport = game.getViewport();
-
-        worldWidth = viewport.getWorldWidth();
-        worldHeight = viewport.getWorldHeight();
+    public Timer(final FitViewport viewport){
+    
+        this.viewport = viewport;
         waitTime = 1f;
         secondTracker = 0;
         minuteTracker = 5;
@@ -35,7 +29,7 @@ public class Timer {
         
         timerTable = new Table();
         timerTable.setVisible(true);
-        timerTable.setPosition(worldWidth*0.1f, worldHeight*0.98f);
+        timerTable.setPosition(viewport.getWorldWidth()*0.1f, viewport.getWorldHeight()*0.98f);
         timerTable.add(timerLabel);
 
     }
