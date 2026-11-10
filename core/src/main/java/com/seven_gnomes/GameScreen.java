@@ -1,15 +1,17 @@
 package com.seven_gnomes;
 
+import java.util.function.Consumer;
+
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.Disposable;
+import com.seven_gnomes.System.GooseManagerSystem;
+import com.seven_gnomes.System.GooseSystem;
 import com.seven_gnomes.System.RenderSystem;
 import com.seven_gnomes.Tiled.TiledAshleyUtils;
 import com.seven_gnomes.Tiled.TiledService;
-
-import java.util.function.Consumer;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -25,6 +27,8 @@ public class GameScreen extends ScreenAdapter {
         engine = new Engine();
         tiledAshleyUtils = new TiledAshleyUtils(engine,game.getAssetService());
 
+        engine.addSystem(new GooseManagerSystem(engine));
+        engine.addSystem(new GooseSystem());
         engine.addSystem(new RenderSystem(game.getBatch(),game.getViewport(), game.getCamera()));
     }
 
