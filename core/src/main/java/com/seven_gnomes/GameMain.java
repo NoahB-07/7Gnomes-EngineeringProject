@@ -16,8 +16,8 @@ import java.util.Map;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class GameMain extends Game {
 
-    static final float WORLD_WIDTH = 32f;
-    static final float WORLD_HEIGHT = 32f;
+    static final float WORLD_WIDTH = 16f;
+    static final float WORLD_HEIGHT = 16f;
     public static final float UNIT_SCALE = 1f/32f;
 
     private SpriteBatch batch;

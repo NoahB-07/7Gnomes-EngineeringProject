@@ -9,8 +9,10 @@ import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.seven_gnomes.AssetService;
 import com.seven_gnomes.Components.Graphic;
+import com.seven_gnomes.Components.Move;
 import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.GameMain;
+import com.seven_gnomes.Input.Controller;
 
 public class TiledAshleyUtils {
 
@@ -34,12 +36,28 @@ public class TiledAshleyUtils {
             textureRegion.getRegionWidth(), textureRegion.getRegionHeight(),
             tileMapObject.getScaleX(), tileMapObject.getScaleY(),
             entity);
+        addEntityController(tileMapObject,entity);
+        addEntityMove(tile, entity);
 
         engine.addEntity(entity);
    }
 
+    private void addEntityMove(TiledMapTile tile, Entity entity) {
+        float speed = tile.getProperties().get("speed", 0f,float.class);
+        if (speed == 0 ) return;
 
-   private void addEntityTransform(
+        entity.add(new Move(speed));
+    }
+
+    private void addEntityController(TiledMapTileMapObject tileMapObject, Entity entity) {
+        boolean controller = tileMapObject.getProperties().get("controller",false,boolean.class);
+        if (!controller) return;
+
+        entity.add(new Controller());
+    }
+
+
+    private void addEntityTransform(
        float x, float y, int z,
        float w, float h,
        float scaleX, float scaleY,

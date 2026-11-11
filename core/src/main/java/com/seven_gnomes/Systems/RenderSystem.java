@@ -1,4 +1,4 @@
-package com.seven_gnomes.System;
+package com.seven_gnomes.Systems;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;

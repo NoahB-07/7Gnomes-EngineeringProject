@@ -17,7 +17,7 @@ public class GameControllerState implements ControllerState{
     @Override
     public void keyUp(Command command) {
         for (Entity entity : controllerEntities) {
-            Controller.MAPPER.get(entity).getPressedCommands().add(command);
+            Controller.MAPPER.get(entity).getReleasedCommands().add(command);
         }
     }
 

@@ -1,8 +1,11 @@
 package com.seven_gnomes.Input;
 
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class KeyboardController extends InputAdapter {
@@ -16,16 +19,56 @@ public class KeyboardController extends InputAdapter {
         Map.entry(Input.Keys.ESCAPE, Command.CANCEL)
     );
 
+    private final boolean[] commandState;
+    private final Map<Class<? extends ControllerState>, ControllerState> stateCashe;
+    private ControllerState activeState;
 
+
+    public KeyboardController(Class<? extends ControllerState> intialState, Engine engine){
+        stateCashe = new HashMap<>();
+        activeState = null;
+        commandState = new boolean[Command.values().length];
+
+        stateCashe.put(IdleControllerState.class,new IdleControllerState());
+        stateCashe.put(GameControllerState.class, new GameControllerState(engine));
+        setActiveState(intialState);
+    }
+
+    public void setActiveState(Class<? extends ControllerState> stateClass) {
+        ControllerState controllerState = stateCashe.get(stateClass);
+        if (controllerState == null){
+            throw new GdxRuntimeException("No state with class " + stateClass + " found in state cashe");
+        }
+
+        for (Command command : Command.values()) {
+            if( activeState != null && commandState[command.ordinal()]){
+                activeState.keyUp(command);
+            }
+            commandState[command.ordinal()] = false;
+        }
+
+        activeState = controllerState;
+    }
 
 
     @Override
     public boolean keyDown(int keycode) {
-        return super.keyDown(keycode);
+        Command command = KEY_MAPPING.get(keycode);
+        if (command == null) return false;
+
+        commandState[command.ordinal()] = true;
+        activeState.keyDown(command);
+        return true;
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        return super.keyUp(keycode);
+        Command command = KEY_MAPPING.get(keycode);
+        if (command == null) return false;
+        if (!commandState[command.ordinal()]) return false;
+
+        commandState[command.ordinal()] = false;
+        activeState.keyUp(command);
+        return true;
     }
 }

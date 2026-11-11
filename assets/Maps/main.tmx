@@ -117,6 +117,10 @@
   <object id="4" gid="395" x="607.667" y="789.667" width="30" height="62"/>
   <object id="5" gid="395" x="318.333" y="85.6667" width="30" height="62"/>
   <object id="6" gid="395" x="863.667" y="95" width="30" height="62"/>
-  <object id="7" gid="394" x="233.333" y="733.333" width="16" height="32"/>
+  <object id="7" gid="394" x="233.333" y="733.333" width="16" height="32">
+   <properties>
+    <property name="controller" type="bool" value="true"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

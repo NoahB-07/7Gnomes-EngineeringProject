@@ -1,5 +1,5 @@
 {
-    "activeFile": "main.tmx",
+    "activeFile": "bob.tsx",
     "expandedProjectPaths": [
         "."
     ],
@@ -10,13 +10,13 @@
             "scaleInDock": 1,
             "scaleInEditor": 0.33
         },
-        "Maps/flooring.tsx": {
-            "scaleInDock": 1
-        },
         "Character.tsx": {
             "dynamicWrapping": false,
             "scaleInDock": 1,
             "scaleInEditor": 8
+        },
+        "Maps/flooring.tsx": {
+            "scaleInDock": 1
         },
         "bob.tsx": {
             "dynamicWrapping": true,
@@ -31,7 +31,7 @@
             "scale": 0.75,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 513.3333333333333,
+                "x": 151.33333333333331,
                 "y": 501.33333333333337
             }
         }
@@ -46,9 +46,10 @@
         "bob.tsx"
     ],
     "project": "main.tiled-project",
+    "property.type": "float",
     "recentFiles": [
-        "bob.tsx",
         "main.tmx",
+        "bob.tsx",
         "Bob.tsx",
         "Character.tsx"
     ],

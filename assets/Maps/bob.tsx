@@ -2,6 +2,9 @@
 <tileset version="1.10" tiledversion="1.12.2" name="bob" tilewidth="30" tileheight="62" tilecount="2" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
+  <properties>
+   <property name="speed" type="float" value="4"/>
+  </properties>
   <image source="Bob_idle_16x16.png" width="16" height="32"/>
  </tile>
  <tile id="1">
