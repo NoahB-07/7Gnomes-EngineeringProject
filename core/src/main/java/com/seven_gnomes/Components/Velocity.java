@@ -4,12 +4,12 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
 
-public class VelocityComponent implements Component {
-    public static final ComponentMapper<VelocityComponent> MAPPER = ComponentMapper.getFor(VelocityComponent.class);
+public class Velocity implements Component {
+    public static final ComponentMapper<Velocity> MAPPER = ComponentMapper.getFor(Velocity.class);
 
     public Vector2 velocity;
 
-    public VelocityComponent(Vector2 velocity) {
+    public Velocity(Vector2 velocity) {
         this.velocity = velocity;
     }
 
