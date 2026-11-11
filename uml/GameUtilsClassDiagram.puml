@@ -1,0 +1,36 @@
+@startuml
+
+
+Class GameUtils{
+   DuckSpawnRate: FLOAT
+   StartGame()
+   EndGame()
+   CheckTime()
+   PickUpItem()
+   SpawnDuck()
+   ChangeHotBarSlot()
+   Impeded()
+}
+
+class Timer {
+   Time : INTEGER
+   TimerUpdate()
+   StopTimer()
+}
+
+class Weapons {
+   Ammo : INTEGER
+   Dammage : INTEGER
+   RateOfFire : Integer
+   KnockBack : Integer
+   Reload()
+}
+
+
+object bor
+
+
+GameUTILS <|-- Timer
+GameUTILS <|-- Weapons
+
+@enduml
