@@ -1,3 +1,4 @@
+package com.seven_gnomes;
 
 interface character{
     /**
@@ -12,7 +13,7 @@ interface character{
 
 }
 
-interface player inherits character{
+interface player extends character{
     /**
      * Definition of the character controlled by the player
      */
@@ -24,7 +25,7 @@ interface player inherits character{
 
 }
 
-interface goose inherits character{
+interface goose extends character{
 
     /**
      * Definition of the geese

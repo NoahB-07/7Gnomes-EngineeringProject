@@ -1,0 +1,26 @@
+@startuml
+Iplayer <|-- Icharacter
+Igoose <|-- Icharacter
+player <|.. Iplayer
+
+Interface Icharacter{
+	void move()
+	void interact()
+	void decreaseHealth()
+	void increateHealth()
+	void attack()
+}
+
+Interface Iplayer{
+	void pickupItems()
+	void swapItemLeft()
+	void swapItemLeft()
+}
+
+Interface Igoose{
+	void eat()
+	void vanish()
+}
+
+
+@enduml
