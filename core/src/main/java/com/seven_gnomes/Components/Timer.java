@@ -59,6 +59,10 @@ public class Timer {
             }
         }
     }
+    public int[] getTime(){
+        int[] time = {minuteTracker, secondTracker};
+        return time;
+    }
     public Table getTimer(){
         return timerTable;
 
