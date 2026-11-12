@@ -1,25 +1,36 @@
 package com.seven_gnomes;
 
-import com.badlogic.gdx.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.seven_gnomes.Components.Timer;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class GameMain extends Game {
 
-    static final float WORLD_WIDTH = 16f;
-    static final float WORLD_HEIGHT = 16f;
+    static final float WORLD_WIDTH = 32f;
+    static final float WORLD_HEIGHT = 32f;
     public static final float UNIT_SCALE = 1f/32f;
 
+
+    private Texture startBackground;
+    private Timer timer;
+    private Inventory inventory;
     private SpriteBatch batch;
     private FitViewport viewport;
     private OrthographicCamera camera;
@@ -32,21 +43,24 @@ public class GameMain extends Game {
 
     @Override
     public void create() {
+        
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         inputMultiplexer = new InputMultiplexer();
         Gdx.input.setInputProcessor(inputMultiplexer );
 
-
+        startBackground= new Texture("Start.png");
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         assetService = new AssetService(new InternalFileHandleResolver());
         glProfiler = new GLProfiler(Gdx.graphics);
         fpsLogger = new FPSLogger();
-
+        timer = new Timer(viewport);
+        inventory = new Inventory(viewport);
         glProfiler.enable();
-        addScreen(new GameScreen(this));
-        setScreen(GameScreen.class);
+        addScreen(new StartScreen(this));
+        addScreen(new GameScreen(this, timer,inventory));
+        setScreen(StartScreen.class);
     }
 
 
@@ -64,6 +78,9 @@ public class GameMain extends Game {
 
     public SpriteBatch getBatch() {
         return batch;
+    }
+    public Texture getBackground(){
+        return startBackground;
     }
 
     public FitViewport getViewport() {
@@ -101,7 +118,8 @@ public class GameMain extends Game {
 
 
     @Override
-    public void resize(int width, int height) {viewport.update(width,height,true);
+    public void resize(int width, int height) {
+        viewport.update(width,height,true);
     }
 
 

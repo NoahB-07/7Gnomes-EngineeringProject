@@ -1,14 +1,17 @@
 package com.seven_gnomes.Input;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.seven_gnomes.Inventory;
 
 public class KeyboardController extends InputAdapter {
+    
+
 
     private static final Map<Integer, Command> KEY_MAPPING = Map.ofEntries(
         Map.entry(Input.Keys.W, Command.UP),
@@ -17,17 +20,22 @@ public class KeyboardController extends InputAdapter {
         Map.entry(Input.Keys.D, Command.RIGHT),
         Map.entry(Input.Keys.SPACE, Command.SELECT),
         Map.entry(Input.Keys.ESCAPE, Command.CANCEL)
+        
+
     );
+
 
     private final boolean[] commandState;
     private final Map<Class<? extends ControllerState>, ControllerState> stateCashe;
     private ControllerState activeState;
+    private Inventory inventory;
 
-
-    public KeyboardController(Class<? extends ControllerState> intialState, Engine engine){
+    public KeyboardController(Class<? extends ControllerState> intialState, Engine engine, Inventory inventory){
         stateCashe = new HashMap<>();
         activeState = null;
         commandState = new boolean[Command.values().length];
+        this.inventory = inventory;
+
 
         stateCashe.put(IdleControllerState.class,new IdleControllerState());
         stateCashe.put(GameControllerState.class, new GameControllerState(engine));
@@ -58,6 +66,31 @@ public class KeyboardController extends InputAdapter {
 
         commandState[command.ordinal()] = true;
         activeState.keyDown(command);
+        
+        switch (keycode) {
+
+        case Input.Keys.NUM_1:
+            inventory.useItem(0);
+            return true;
+
+        case Input.Keys.NUM_2:
+            inventory.useItem(1);
+            return true;
+
+        case Input.Keys.NUM_3:
+            inventory.useItem(2);
+            return true;
+
+        case Input.Keys.NUM_4:
+            inventory.useItem(3);
+            return true;
+
+        case Input.Keys.NUM_5:
+            inventory.useItem(4);
+            return true;
+    }
+
+        
         return true;
     }
 
@@ -72,3 +105,4 @@ public class KeyboardController extends InputAdapter {
         return true;
     }
 }
+

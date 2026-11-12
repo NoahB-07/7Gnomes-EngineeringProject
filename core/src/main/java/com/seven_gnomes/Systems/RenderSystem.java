@@ -1,5 +1,7 @@
 package com.seven_gnomes.Systems;
 
+import java.util.Comparator;
+
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
@@ -14,8 +16,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.seven_gnomes.Components.Graphic;
 import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.GameMain;
-
-import java.util.Comparator;
 
 public class RenderSystem extends SortedIteratingSystem implements Disposable {
 
