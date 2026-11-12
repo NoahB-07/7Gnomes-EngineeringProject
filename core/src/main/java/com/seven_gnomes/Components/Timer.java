@@ -15,17 +15,16 @@ public class Timer {
     public Label timerLabel;
     public Table timerTable;
     final FitViewport viewport;
-    boolean pause;
+    private boolean pause;
 
 
     public Timer(final FitViewport viewport){
-
+        
         this.viewport = viewport;
         waitTime = 1f;
         secondTracker = 0;
         minuteTracker = 5;
         timeSinceLastUpdate = 0f;
-        pause = false;
 
         timerLabel = new Label(String.format("%02d : %02d", minuteTracker, secondTracker), new Label.LabelStyle(new BitmapFont(), Color.RED));
         timerLabel.setFontScale(0.1f);
