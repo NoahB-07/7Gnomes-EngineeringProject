@@ -36,6 +36,7 @@ public class GameScreen extends ScreenAdapter {
     private float worldHeight;
     private float worldWidth;
     private Stage stage;
+    private Stage pstage;
     private Texture pauseScreen;
     private boolean paused;
     private final TiledService tiledService;
@@ -67,6 +68,7 @@ public class GameScreen extends ScreenAdapter {
 
         /// buttons
         stage = new Stage(viewport, batch);
+        pstage = new Stage(viewport, batch);
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         skin.getFont("default").getData().setScale(0.15f);
         
@@ -86,7 +88,7 @@ public class GameScreen extends ScreenAdapter {
         resumeButton.getStyle().fontColor = Color.WHITE;
         resumeButton.getLabel().setFontScale(0.25f);
         restartButton.getLabel().setFontScale(0.25f);
-
+        
 
         stage.addActor(pauseButton);
         stage.addActor(timer.getTimer());
@@ -112,6 +114,11 @@ public class GameScreen extends ScreenAdapter {
         tiledService.setMap(tiledMap);
         game.setInputProcessor(stage);
 
+       
+        
+        
+
+
         restartButton.addListener(new InputListener(){
             
             @Override
@@ -125,6 +132,7 @@ public class GameScreen extends ScreenAdapter {
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 paused=!paused;
+                game.setInputProcessor(pstage);
                 pause();
                 return true;
             }
@@ -134,6 +142,7 @@ public class GameScreen extends ScreenAdapter {
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 paused=!paused;
+                game.setInputProcessor(stage);
                 resume();
                 return true;
             }
@@ -153,17 +162,20 @@ public class GameScreen extends ScreenAdapter {
         delta = Math.min(delta, 1/30f);
         timer.update(delta);
         engine.update(delta);
-    
-    
+    if(!paused){
+        stage.act(delta);
+        stage.draw();
+    }
  if(paused){
         batch.begin();
         batch.setColor(1f, 1f, 1f, 0.7f); 
         batch.draw(pauseScreen,0, 0, worldWidth, worldHeight);
         batch.setColor(1f, 1f, 1f, 1f);
         batch.end();
+        pstage.act(delta);
+        pstage.draw();
     }
-        stage.act(delta);
-        stage.draw();
+        
 
     }
 
@@ -178,10 +190,11 @@ public class GameScreen extends ScreenAdapter {
 
       @Override
     public void pause() {
-        stage.addActor(resumeButton);
-        stage.addActor(restartButton);
+        pstage.addActor(resumeButton);
+        pstage.addActor(restartButton);
         pauseButton.remove();
         timer.pause();
+        
         
     }
 
