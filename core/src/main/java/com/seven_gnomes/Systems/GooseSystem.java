@@ -87,11 +87,11 @@ public class GooseSystem extends IteratingSystem {
     
     @Override
     public void update(float deltaTime) {
-        if (spawnTimer.getTime()[1] % 5 == 0 && activeGeese < MAX_GEESE && !waveSpawned) {
+        if (spawnTimer.secondTracker % 5 == 0 && activeGeese < MAX_GEESE && !waveSpawned) {
             spawnGooseWave(gooseSpawnCount);
             waveCounter++;
             waveSpawned= true;
-        } else if (spawnTimer.getTime()[1] % 5 != 0) {
+        } else if (spawnTimer.secondTracker % 5 != 0) {
             waveSpawned = false;
         }
 

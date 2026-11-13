@@ -9,8 +9,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 public class Timer {
 
     public final float waitTime;
-    int secondTracker;
-    int minuteTracker;
+    public int secondTracker;
+    public int minuteTracker;
     float timeSinceLastUpdate;
     public Label timerLabel;
     public Table timerTable;
