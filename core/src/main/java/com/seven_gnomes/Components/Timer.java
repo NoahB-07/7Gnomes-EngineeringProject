@@ -16,15 +16,17 @@ public class Timer {
     public Table timerTable;
     final FitViewport viewport;
     private boolean pause;
-
+    private boolean rapidspawn;
+    private int rapidSpawnTimer;
 
     public Timer(final FitViewport viewport){
-        
         this.viewport = viewport;
         waitTime = 1f;
         secondTracker = 0;
         minuteTracker = 5;
         timeSinceLastUpdate = 0f;
+        rapidspawn = false;
+        rapidSpawnTimer =0;
 
         timerLabel = new Label(String.format("%02d : %02d", minuteTracker, secondTracker), new Label.LabelStyle(new BitmapFont(), Color.RED));
         timerLabel.setFontScale(0.1f);
@@ -43,7 +45,9 @@ public class Timer {
 
             if(timeSinceLastUpdate >= waitTime) {
                 timeSinceLastUpdate = 0f;
-
+                if (rapidspawn){
+                rapidSpawnTimer += 1;
+                }
                 if (secondTracker == 0) {
                     if (minuteTracker == 0) {
                         //game over
@@ -57,7 +61,15 @@ public class Timer {
 
                 timerLabel.setText(String.format("%02d : %02d", minuteTracker, secondTracker));
             }
+            
+            if (rapidSpawnTimer>40){
+                rapidSpawnTimer =0;
+                rapidspawn = false;
+
+                //call geese
+            }
         }
+        
     }
     public int[] getTime(){
         int[] time = {minuteTracker, secondTracker};
@@ -67,9 +79,16 @@ public class Timer {
         return timerTable;
 
     }
-
+    public void rapidSpawnCount(boolean activate){
+        rapidspawn = activate;
+       
+        
+    }
+   
+    
     public void pause(){
         pause = true;
+        
     }
 
     public void unpause(){
@@ -77,3 +96,4 @@ public class Timer {
     }
 
 }
+
