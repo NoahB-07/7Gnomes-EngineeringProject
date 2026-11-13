@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="50" height="26" tilewidth="32" tileheight="32" infinite="0" nextlayerid="14" nextobjectid="114">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="50" height="26" tilewidth="32" tileheight="32" infinite="0" nextlayerid="15" nextobjectid="115">
   <properties>
     <property name="name" value="Goose Patrol - building" />
   </properties>
@@ -12,6 +12,7 @@
   <tileset firstgid="1816" name="building_extras" tilewidth="32" tileheight="32" tilecount="24" columns="8">
     <image source="tilesets/building_extras_32x32.png" width="256" height="96" />
   </tileset>
+  <tileset firstgid="1840" source="bob.tsx" />
   <layer id="1" name="floor" width="50" height="26">
     <data encoding="csv">
 1825,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1819,251,251,1825,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1817,1819,
@@ -275,170 +276,177 @@
       </properties>
     </object>
   </objectgroup>
-  <objectgroup id="9" name="spawns" color="#00aaff">
-    <object id="74" name="player" type="player_spawn" x="948" y="612" width="24" height="24" />
-    <object id="75" name="goose_1" type="goose_spawn" x="804" y="484" width="24" height="24" />
-    <object id="76" name="goose_2" type="goose_spawn" x="1092" y="484" width="24" height="24" />
-    <object id="77" name="goose_3" type="goose_spawn" x="740" y="612" width="24" height="24" />
-    <object id="78" name="goose_4" type="goose_spawn" x="1188" y="580" width="24" height="24" />
-    <object id="79" name="goose_5" type="goose_spawn" x="868" y="772" width="24" height="24" />
-    <object id="80" name="goose_6" type="goose_spawn" x="1092" y="772" width="24" height="24" />
-    <object id="81" name="goose_7" type="goose_spawn" x="612" y="420" width="24" height="24" />
-    <object id="82" name="goose_8" type="goose_spawn" x="1348" y="452" width="24" height="24" />
-    <object id="83" name="goose_9" type="goose_spawn" x="484" y="580" width="24" height="24" />
-    <object id="84" name="goose_10" type="goose_spawn" x="1444" y="644" width="24" height="24" />
-    <object id="85" name="goose_11" type="goose_spawn" x="100" y="484" width="24" height="24" />
-    <object id="86" name="goose_12" type="goose_spawn" x="228" y="612" width="24" height="24" />
+  <objectgroup id="9" name="Objects">
+    <object id="74" gid="1840" x="952" y="632" width="16" height="32">
+      <properties>
+        <property name="controller" type="bool" value="true" />
+      </properties>
+    </object>
   </objectgroup>
-  <objectgroup id="10" name="keys" color="#ffdd00">
-    <object id="87" name="key_1" type="key_spot" x="68" y="740" width="24" height="24">
+  <objectgroup id="10" name="spawns" color="#00aaff">
+    <object id="75" name="player" type="player_spawn" x="948" y="612" width="24" height="24" />
+    <object id="76" name="goose_1" type="goose_spawn" x="804" y="484" width="24" height="24" />
+    <object id="77" name="goose_2" type="goose_spawn" x="1092" y="484" width="24" height="24" />
+    <object id="78" name="goose_3" type="goose_spawn" x="740" y="612" width="24" height="24" />
+    <object id="79" name="goose_4" type="goose_spawn" x="1188" y="580" width="24" height="24" />
+    <object id="80" name="goose_5" type="goose_spawn" x="868" y="772" width="24" height="24" />
+    <object id="81" name="goose_6" type="goose_spawn" x="1092" y="772" width="24" height="24" />
+    <object id="82" name="goose_7" type="goose_spawn" x="612" y="420" width="24" height="24" />
+    <object id="83" name="goose_8" type="goose_spawn" x="1348" y="452" width="24" height="24" />
+    <object id="84" name="goose_9" type="goose_spawn" x="484" y="580" width="24" height="24" />
+    <object id="85" name="goose_10" type="goose_spawn" x="1444" y="644" width="24" height="24" />
+    <object id="86" name="goose_11" type="goose_spawn" x="100" y="484" width="24" height="24" />
+    <object id="87" name="goose_12" type="goose_spawn" x="228" y="612" width="24" height="24" />
+  </objectgroup>
+  <objectgroup id="11" name="keys" color="#ffdd00">
+    <object id="88" name="key_1" type="key_spot" x="68" y="740" width="24" height="24">
       <properties>
         <property name="key" type="int" value="1" />
         <property name="opensDoor" type="string" value="door_1" />
       </properties>
     </object>
-    <object id="88" name="key_2" type="key_spot" x="388" y="100" width="24" height="24">
+    <object id="89" name="key_2" type="key_spot" x="388" y="100" width="24" height="24">
       <properties>
         <property name="key" type="int" value="2" />
         <property name="opensDoor" type="string" value="door_2" />
       </properties>
     </object>
-    <object id="89" name="key_3" type="key_spot" x="1444" y="132" width="24" height="24">
+    <object id="90" name="key_3" type="key_spot" x="1444" y="132" width="24" height="24">
       <properties>
         <property name="key" type="int" value="3" />
         <property name="opensDoor" type="string" value="door_3" />
       </properties>
     </object>
-    <object id="90" name="key_4" type="key_spot" x="132" y="100" width="24" height="24">
+    <object id="91" name="key_4" type="key_spot" x="132" y="100" width="24" height="24">
       <properties>
         <property name="key" type="int" value="4" />
         <property name="opensDoor" type="string" value="door_4" />
       </properties>
     </object>
-    <object id="91" name="key_5" type="key_spot" x="1124" y="132" width="24" height="24">
+    <object id="92" name="key_5" type="key_spot" x="1124" y="132" width="24" height="24">
       <properties>
         <property name="key" type="int" value="5" />
         <property name="opensDoor" type="string" value="door_5" />
       </properties>
     </object>
   </objectgroup>
-  <objectgroup id="11" name="items" color="#ffaa00">
-    <object id="92" name="item_spot_1" type="item_spot" x="580" y="612" width="24" height="24">
+  <objectgroup id="12" name="items" color="#ffaa00">
+    <object id="93" name="item_spot_1" type="item_spot" x="580" y="612" width="24" height="24">
       <properties>
         <property name="room" type="string" value="Atrium" />
       </properties>
     </object>
-    <object id="93" name="item_spot_2" type="item_spot" x="1412" y="740" width="24" height="24">
+    <object id="94" name="item_spot_2" type="item_spot" x="1412" y="740" width="24" height="24">
       <properties>
         <property name="room" type="string" value="Atrium" />
       </properties>
     </object>
-    <object id="94" name="item_spot_3" type="item_spot" x="1124" y="484" width="24" height="24">
+    <object id="95" name="item_spot_3" type="item_spot" x="1124" y="484" width="24" height="24">
       <properties>
         <property name="room" type="string" value="Atrium" />
       </properties>
     </object>
-    <object id="95" name="item_spot_4" type="item_spot" x="164" y="740" width="24" height="24">
+    <object id="96" name="item_spot_4" type="item_spot" x="164" y="740" width="24" height="24">
       <properties>
         <property name="room" type="string" value="Common Room" />
       </properties>
     </object>
-    <object id="96" name="item_spot_5" type="item_spot" x="644" y="132" width="24" height="24">
+    <object id="97" name="item_spot_5" type="item_spot" x="644" y="132" width="24" height="24">
       <properties>
         <property name="room" type="string" value="Storage Room" />
       </properties>
     </object>
-    <object id="97" name="item_spot_6" type="item_spot" x="1188" y="228" width="24" height="24">
+    <object id="98" name="item_spot_6" type="item_spot" x="1188" y="228" width="24" height="24">
       <properties>
         <property name="room" type="string" value="Office" />
       </properties>
     </object>
-    <object id="98" name="item_spot_7" type="item_spot" x="516" y="260" width="24" height="24">
+    <object id="99" name="item_spot_7" type="item_spot" x="516" y="260" width="24" height="24">
       <properties>
         <property name="room" type="string" value="Seminar Room" />
       </properties>
     </object>
-    <object id="99" name="item_spot_8" type="item_spot" x="260" y="292" width="24" height="24">
+    <object id="100" name="item_spot_8" type="item_spot" x="260" y="292" width="24" height="24">
       <properties>
         <property name="room" type="string" value="Lab" />
       </properties>
     </object>
   </objectgroup>
-  <objectgroup id="12" name="events" visible="0" color="#ff00ff">
-    <object id="100" name="event_spot_1" type="event_spot" x="704" y="544" width="64" height="64">
+  <objectgroup id="13" name="events" visible="0" color="#ff00ff">
+    <object id="101" name="event_spot_1" type="event_spot" x="704" y="544" width="64" height="64">
       <properties>
         <property name="room" type="string" value="Atrium" />
         <property name="oneShot" type="bool" value="true" />
       </properties>
     </object>
-    <object id="101" name="event_spot_2" type="event_spot" x="1152" y="608" width="64" height="64">
+    <object id="102" name="event_spot_2" type="event_spot" x="1152" y="608" width="64" height="64">
       <properties>
         <property name="room" type="string" value="Atrium" />
         <property name="oneShot" type="bool" value="true" />
       </properties>
     </object>
-    <object id="102" name="event_spot_3" type="event_spot" x="448" y="512" width="64" height="64">
+    <object id="103" name="event_spot_3" type="event_spot" x="448" y="512" width="64" height="64">
       <properties>
         <property name="room" type="string" value="Atrium" />
         <property name="oneShot" type="bool" value="true" />
       </properties>
     </object>
-    <object id="103" name="event_spot_4" type="event_spot" x="224" y="576" width="64" height="64">
+    <object id="104" name="event_spot_4" type="event_spot" x="224" y="576" width="64" height="64">
       <properties>
         <property name="room" type="string" value="Common Room" />
         <property name="oneShot" type="bool" value="true" />
       </properties>
     </object>
-    <object id="104" name="event_spot_5" type="event_spot" x="608" y="192" width="64" height="64">
+    <object id="105" name="event_spot_5" type="event_spot" x="608" y="192" width="64" height="64">
       <properties>
         <property name="room" type="string" value="Storage Room" />
         <property name="oneShot" type="bool" value="true" />
       </properties>
     </object>
-    <object id="105" name="event_spot_6" type="event_spot" x="1216" y="224" width="64" height="64">
+    <object id="106" name="event_spot_6" type="event_spot" x="1216" y="224" width="64" height="64">
       <properties>
         <property name="room" type="string" value="Office" />
         <property name="oneShot" type="bool" value="true" />
       </properties>
     </object>
   </objectgroup>
-  <objectgroup id="13" name="rooms" visible="0" color="#55ff55">
-    <object id="106" name="Lab" type="room" x="32" y="32" width="256" height="288">
+  <objectgroup id="14" name="rooms" visible="0" color="#55ff55">
+    <object id="107" name="Lab" type="room" x="32" y="32" width="256" height="288">
       <properties>
         <property name="redHerring" type="bool" value="false" />
       </properties>
     </object>
-    <object id="107" name="Seminar Room" type="room" x="320" y="32" width="224" height="288">
+    <object id="108" name="Seminar Room" type="room" x="320" y="32" width="224" height="288">
       <properties>
         <property name="redHerring" type="bool" value="false" />
       </properties>
     </object>
-    <object id="108" name="Storage Room" type="room" x="576" y="32" width="160" height="288">
+    <object id="109" name="Storage Room" type="room" x="576" y="32" width="160" height="288">
       <properties>
         <property name="redHerring" type="bool" value="true" />
       </properties>
     </object>
-    <object id="109" name="Lecture Theatre" type="room" x="768" y="32" width="384" height="288">
+    <object id="110" name="Lecture Theatre" type="room" x="768" y="32" width="384" height="288">
       <properties>
         <property name="redHerring" type="bool" value="false" />
       </properties>
     </object>
-    <object id="110" name="Office" type="room" x="1184" y="32" width="160" height="288">
+    <object id="111" name="Office" type="room" x="1184" y="32" width="160" height="288">
       <properties>
         <property name="redHerring" type="bool" value="true" />
       </properties>
     </object>
-    <object id="111" name="Study Space" type="room" x="1376" y="32" width="192" height="288">
+    <object id="112" name="Study Space" type="room" x="1376" y="32" width="192" height="288">
       <properties>
         <property name="redHerring" type="bool" value="false" />
       </properties>
     </object>
-    <object id="112" name="Common Room" type="room" x="32" y="352" width="288" height="448">
+    <object id="113" name="Common Room" type="room" x="32" y="352" width="288" height="448">
       <properties>
         <property name="redHerring" type="bool" value="false" />
       </properties>
     </object>
-    <object id="113" name="Atrium" type="room" x="352" y="352" width="1216" height="448">
+    <object id="114" name="Atrium" type="room" x="352" y="352" width="1216" height="448">
       <properties>
         <property name="redHerring" type="bool" value="false" />
       </properties>

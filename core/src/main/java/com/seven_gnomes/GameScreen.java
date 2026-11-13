@@ -3,7 +3,10 @@ package com.seven_gnomes;
 import java.util.function.Consumer;
 
 import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
+import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
@@ -20,9 +23,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.seven_gnomes.Components.Timer;
+import com.seven_gnomes.Components.Transform;
+import com.seven_gnomes.Input.Controller;
 import com.seven_gnomes.System.RenderSystem;
 import com.seven_gnomes.Tiled.TiledAshleyUtils;
 import com.seven_gnomes.Tiled.TiledService;
+import com.seven_gnomes.map.BuildingMap;
 
 
 public class GameScreen extends ScreenAdapter {
@@ -44,6 +50,8 @@ public class GameScreen extends ScreenAdapter {
     final GameMain game;
     final Timer timer;
     final Inventory inventory;
+    private BuildingMap buildingMap;
+    private ImmutableArray<Entity> players;
 
 
     //if fps drops change engine to pooled engine
@@ -65,6 +73,7 @@ public class GameScreen extends ScreenAdapter {
         worldHeight = viewport.getWorldHeight();
         pauseScreen=new Texture("Pause.png");
         engine.addSystem(new RenderSystem(batch,viewport, camera));
+        players = engine.getEntitiesFor(Family.all(Controller.class, Transform.class).get());
 
         /// buttons
         stage = new Stage(viewport, batch);
@@ -111,6 +120,7 @@ public class GameScreen extends ScreenAdapter {
         tiledService.setLoadObjectConsumer(tiledAshleyUtils::onloadObject);
 
         TiledMap tiledMap = tiledService.loadMap(MapAsset.MAIN);
+        buildingMap = new BuildingMap(tiledMap, GameMain.UNIT_SCALE);
         tiledService.setMap(tiledMap);
         game.setInputProcessor(stage);
 
@@ -161,7 +171,9 @@ public class GameScreen extends ScreenAdapter {
 
         delta = Math.min(delta, 1/30f);
         timer.update(delta);
+        followPlayer();
         engine.update(delta);
+        resetCamera();
     if(!paused){
         stage.act(delta);
         stage.draw();
@@ -204,6 +216,23 @@ public class GameScreen extends ScreenAdapter {
          restartButton.remove();
         resumeButton.remove();
         timer.unpause();
+    }
+
+    // camera on player but stays inside map
+    private void followPlayer() {
+        if (buildingMap == null || players.size() == 0) return;
+        Transform transform = Transform.MAPPER.get(players.first());
+        camera.position.set(
+            transform.getPosition().x + transform.getSize().x / 2f,
+            transform.getPosition().y + transform.getSize().y / 2f, 0);
+        buildingMap.clampCamera(camera);
+    }
+
+    // ui uses same camera so put it back
+    private void resetCamera() {
+        camera.position.set(worldWidth / 2f, worldHeight / 2f, 0);
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
     }
 
     public void restart() {
