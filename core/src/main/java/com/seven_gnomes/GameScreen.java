@@ -21,6 +21,8 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.seven_gnomes.Components.Timer;
 import com.seven_gnomes.System.RenderSystem;
+import com.seven_gnomes.Systems.GooseSystem;
+import com.seven_gnomes.Systems.MoveSystem;
 import com.seven_gnomes.Tiled.TiledAshleyUtils;
 import com.seven_gnomes.Tiled.TiledService;
 
@@ -41,6 +43,7 @@ public class GameScreen extends ScreenAdapter {
     private boolean paused;
     private final TiledService tiledService;
     private final TiledAshleyUtils tiledAshleyUtils;
+    private final GooseSystem gooseSystem;
     final GameMain game;
     final Timer timer;
     final Inventory inventory;
@@ -64,6 +67,9 @@ public class GameScreen extends ScreenAdapter {
         worldWidth = viewport.getWorldWidth();
         worldHeight = viewport.getWorldHeight();
         pauseScreen=new Texture("Pause.png");
+        gooseSystem = new GooseSystem(timer, null); // Still needs texture
+        engine.addSystem(gooseSystem);
+        engine.addSystem(new MoveSystem());
         engine.addSystem(new RenderSystem(batch,viewport, camera));
 
         /// buttons
@@ -111,6 +117,7 @@ public class GameScreen extends ScreenAdapter {
         tiledService.setLoadObjectConsumer(tiledAshleyUtils::onloadObject);
 
         TiledMap tiledMap = tiledService.loadMap(MapAsset.MAIN);
+        gooseSystem.setMap(tiledMap);
         tiledService.setMap(tiledMap);
         game.setInputProcessor(stage);
 
