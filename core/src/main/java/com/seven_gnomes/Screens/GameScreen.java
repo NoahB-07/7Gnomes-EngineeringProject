@@ -3,7 +3,10 @@ package com.seven_gnomes.Screens;
 import java.util.function.Consumer;
 
 import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
+import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
@@ -11,6 +14,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -20,10 +24,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.seven_gnomes.Components.Timer;
+import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.GameMain;
 import com.seven_gnomes.Assets.Inventory;
+import com.seven_gnomes.Assets.Item;
+import com.seven_gnomes.Input.Controller;
+import com.seven_gnomes.Input.GameControllerState;
+import com.seven_gnomes.Input.IdleControllerState;
+import com.seven_gnomes.Input.KeyboardController;
+import com.seven_gnomes.map.BuildingMap;
 import com.seven_gnomes.map.MapAsset;
+import com.seven_gnomes.map.MapMarker;
 import com.seven_gnomes.Systems.RenderSystem;
+import com.seven_gnomes.Systems.ControllerSystem;
 import com.seven_gnomes.Systems.GooseSystem;
 import com.seven_gnomes.Systems.MoveSystem;
 import com.seven_gnomes.Tiled.TiledAshleyUtils;
@@ -49,6 +62,11 @@ public class GameScreen extends ScreenAdapter {
     final Timer timer;
     final Inventory inventory;
     private boolean paused;
+    private BuildingMap buildingMap;
+    private final ImmutableArray<Entity> players;
+    private final KeyboardController keyboardController;
+    private final Rectangle playerFeet = new Rectangle();
+    private final Texture placeholderIcon;
 
 
 
@@ -65,10 +83,15 @@ public class GameScreen extends ScreenAdapter {
         worldWidth = viewport.getWorldWidth();
         worldHeight = viewport.getWorldHeight();
         pauseScreen=new Texture("Pause.png");
+        // placeholder till items team has real icons
+        placeholderIcon = new Texture("dot.png");
         gooseSystem = new GooseSystem(timer, null); // Still needs texture
         engine.addSystem(gooseSystem);
+        engine.addSystem(new ControllerSystem());
         engine.addSystem(new MoveSystem());
         engine.addSystem(new RenderSystem(batch, viewport, camera));
+        keyboardController = new KeyboardController(GameControllerState.class, engine, inventory);
+        players = engine.getEntitiesFor(Family.all(Controller.class, Transform.class).get());
 
         /// buttons
         stage = new Stage(viewport, batch);
@@ -115,9 +138,11 @@ public class GameScreen extends ScreenAdapter {
         tiledService.setLoadObjectConsumer(tiledAshleyUtils::onloadObject);
 
         TiledMap tiledMap = tiledService.loadMap(MapAsset.MAIN);
+        buildingMap = new BuildingMap(tiledMap, GameMain.UNIT_SCALE);
+        engine.getSystem(MoveSystem.class).setMap(buildingMap);
         gooseSystem.setMap(tiledMap);
         tiledService.setMap(tiledMap);
-        game.setInputProcessor(stage);
+        game.setInputProcessor(stage, keyboardController);
 
 
 
@@ -147,7 +172,7 @@ public class GameScreen extends ScreenAdapter {
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 paused=!paused;
-                game.setInputProcessor(stage);
+                game.setInputProcessor(stage, keyboardController);
                 resume();
                 return true;
             }
@@ -166,7 +191,10 @@ public class GameScreen extends ScreenAdapter {
 
         delta = Math.min(delta, 1/30f);
         timer.update(delta);
+        followPlayer();
         engine.update(delta);
+        checkLockers();
+        resetCamera();
     if(!paused){
         stage.act(delta);
         stage.draw();
@@ -186,6 +214,7 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
+        placeholderIcon.dispose();
         for (EntitySystem system: engine.getSystems()){
             if (system instanceof Disposable disposableSystem){
                 disposableSystem.dispose();
@@ -199,6 +228,8 @@ public class GameScreen extends ScreenAdapter {
         pstage.addActor(restartButton);
         pauseButton.remove();
         timer.pause();
+        // stop moving while paused
+        keyboardController.setActiveState(IdleControllerState.class);
 
 
     }
@@ -209,6 +240,43 @@ public class GameScreen extends ScreenAdapter {
          restartButton.remove();
         resumeButton.remove();
         timer.unpause();
+        keyboardController.setActiveState(GameControllerState.class);
+    }
+
+    // standing under a locker gives an item if theres room
+    private void checkLockers() {
+        if (buildingMap == null || players.size() == 0 || inventory.getItems().size() >= 5) return;
+        Transform transform = Transform.MAPPER.get(players.first());
+        // same feet box as move system
+        playerFeet.set(
+            transform.getPosition().x + transform.getSize().x * 0.1f,
+            transform.getPosition().y,
+            transform.getSize().x * 0.8f,
+            transform.getSize().y * 0.25f);
+        MapMarker locker = buildingMap.useLockerAt(playerFeet);
+        if (locker != null) {
+            inventory.addItem(new Item(locker.getString("item", "place_holder"), placeholderIcon));
+            Gdx.app.log("Locker", "got " + locker.getString("item", "") + " from " + locker.getName());
+        }
+    }
+
+    // camera on player but stays inside map
+    private void followPlayer() {
+        if (buildingMap == null || players.size() == 0) return;
+        Transform transform = Transform.MAPPER.get(players.first());
+        OrthographicCamera camera = game.getCamera();
+        camera.position.set(
+            transform.getPosition().x + transform.getSize().x / 2f,
+            transform.getPosition().y + transform.getSize().y / 2f, 0);
+        buildingMap.clampCamera(camera);
+    }
+
+    // ui uses same camera so put it back
+    private void resetCamera() {
+        OrthographicCamera camera = game.getCamera();
+        camera.position.set(worldWidth / 2f, worldHeight / 2f, 0);
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
     }
 
     public void restart() {

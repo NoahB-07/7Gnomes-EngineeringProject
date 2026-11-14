@@ -3,8 +3,10 @@
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
-   <property name="speed" type="float" value="4"/>
+  <!-- bobs speed -->
+   <property name="speed" type="float" value="5.2"/>
   </properties>
+  <!-- bobs face -->
   <image source="Bob_idle_16x16.png" width="16" height="32"/>
  </tile>
  <tile id="1">

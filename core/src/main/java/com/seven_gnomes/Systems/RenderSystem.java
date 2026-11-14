@@ -23,6 +23,8 @@ public class RenderSystem extends SortedIteratingSystem implements Disposable {
     private final SpriteBatch batch;
     private final Viewport viewport;
     private final OrthographicCamera camera;
+    private int[] belowLayers = new int[0];
+    private int[] aboveLayers = new int[0];
 
     public RenderSystem(SpriteBatch batch, Viewport viewport, OrthographicCamera camera){
         super(
@@ -40,12 +42,15 @@ public class RenderSystem extends SortedIteratingSystem implements Disposable {
         viewport.apply();
         batch.setColor(Color.WHITE);
         mapRenderer.setView(camera);
-        mapRenderer.render();
+        mapRenderer.render(belowLayers);
 
         forceSort();
         batch.begin();
         super.update(deltaTime);
         batch.end();
+
+        // tops of tall stuff go over the player
+        mapRenderer.render(aboveLayers);
     }
 
     @Override
@@ -78,6 +83,15 @@ public class RenderSystem extends SortedIteratingSystem implements Disposable {
 
     public void setMap(TiledMap tiledMap){
         mapRenderer.setMap(tiledMap);
+        // above layer gets drawn after entities and the rest before
+        int above = tiledMap.getLayers().getIndex("above");
+        int count = tiledMap.getLayers().getCount();
+        belowLayers = new int[above < 0 ? count : count - 1];
+        int n = 0;
+        for (int i = 0; i < count; i++) {
+            if (i != above) belowLayers[n++] = i;
+        }
+        aboveLayers = above < 0 ? new int[0] : new int[] {above};
     }
 
     @Override
