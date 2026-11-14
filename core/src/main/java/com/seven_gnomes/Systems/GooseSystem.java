@@ -19,7 +19,7 @@ import com.seven_gnomes.Components.Move;
 import com.seven_gnomes.Components.Timer;
 import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.GameMain;
-import com.seven_gnomes.GooseFactory;
+import com.seven_gnomes.Assets.GooseFactory;
 import com.seven_gnomes.Input.Controller;
 
 public class GooseSystem extends IteratingSystem {
@@ -49,10 +49,10 @@ public class GooseSystem extends IteratingSystem {
     public void setMap(TiledMap map) {
         spawnPositions.clear();
         MapLayer spawnLayer = map.getLayers().get("spawns");
-        
+
         for (MapObject obj: spawnLayer.getObjects()) {
             Object type = obj.getProperties().get("type");
-            
+
             Rectangle bounds = ((RectangleMapObject) obj).getRectangle();
             Vector2 pos = new Vector2(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2).scl(GameMain.UNIT_SCALE);
             if ("goose_spawn".equals(type)) {
@@ -76,15 +76,15 @@ public class GooseSystem extends IteratingSystem {
             activeGeese++;
         }
         gooseSpawnCount++;
-        System.out.println("Spawned wave, total geese = " + totalGeeseSpawned);    
+        System.out.println("Spawned wave, total geese = " + totalGeeseSpawned);
     }
-    
+
     @Override
     public void addedToEngine(Engine engine) {
         super.addedToEngine(engine);
         this.engine = engine;
     }
-    
+
     @Override
     public void update(float deltaTime) {
         if (spawnTimer.secondTracker % 5 == 0 && activeGeese < MAX_GEESE && !waveSpawned) {
@@ -103,7 +103,7 @@ public class GooseSystem extends IteratingSystem {
         }
     }
 
-    @Override 
+    @Override
     protected void processEntity(Entity entity, float deltaTime) {
         Transform transform = Transform.MAPPER.get(entity);
         Move move = Move.MAPPER.get(entity);

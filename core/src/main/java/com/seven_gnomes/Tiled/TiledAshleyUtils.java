@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.math.Vector2;
-import com.seven_gnomes.AssetService;
+import com.seven_gnomes.Assets.AssetService;
 import com.seven_gnomes.Components.Graphic;
 import com.seven_gnomes.Components.Move;
 import com.seven_gnomes.Components.Transform;

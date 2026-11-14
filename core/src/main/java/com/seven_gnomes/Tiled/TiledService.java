@@ -7,8 +7,8 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.seven_gnomes.AssetService;
-import com.seven_gnomes.MapAsset;
+import com.seven_gnomes.Assets.AssetService;
+import com.seven_gnomes.map.MapAsset;
 
 public class TiledService {
 
@@ -26,7 +26,7 @@ public class TiledService {
     }
 
     public TiledMap loadMap(MapAsset mapAsset){
-        
+
         TiledMap map = assetService.load(mapAsset);
         map.getProperties().put("mapAsset",mapAsset);
         return map;

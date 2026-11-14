@@ -18,7 +18,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.seven_gnomes.Assets.AssetService;
+import com.seven_gnomes.Assets.Inventory;
 import com.seven_gnomes.Components.Timer;
+import com.seven_gnomes.Screens.GameScreen;
+import com.seven_gnomes.Screens.StartScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class GameMain extends Game {
@@ -43,7 +47,7 @@ public class GameMain extends Game {
 
     @Override
     public void create() {
-        
+
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         inputMultiplexer = new InputMultiplexer();
         Gdx.input.setInputProcessor(inputMultiplexer );

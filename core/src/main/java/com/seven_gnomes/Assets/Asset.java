@@ -1,4 +1,4 @@
-package com.seven_gnomes;
+package com.seven_gnomes.Assets;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 

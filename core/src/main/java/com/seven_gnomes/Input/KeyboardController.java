@@ -7,10 +7,10 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.seven_gnomes.Inventory;
+import com.seven_gnomes.Assets.Inventory;
 
 public class KeyboardController extends InputAdapter {
-    
+
 
 
     private static final Map<Integer, Command> KEY_MAPPING = Map.ofEntries(
@@ -20,7 +20,7 @@ public class KeyboardController extends InputAdapter {
         Map.entry(Input.Keys.D, Command.RIGHT),
         Map.entry(Input.Keys.SPACE, Command.SELECT),
         Map.entry(Input.Keys.ESCAPE, Command.CANCEL)
-        
+
 
     );
 
@@ -66,7 +66,7 @@ public class KeyboardController extends InputAdapter {
 
         commandState[command.ordinal()] = true;
         activeState.keyDown(command);
-        
+
         switch (keycode) {
 
         case Input.Keys.NUM_1:
@@ -90,7 +90,7 @@ public class KeyboardController extends InputAdapter {
             return true;
     }
 
-        
+
         return true;
     }
 

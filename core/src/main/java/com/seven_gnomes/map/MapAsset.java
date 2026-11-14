@@ -1,11 +1,12 @@
-package com.seven_gnomes;
+package com.seven_gnomes.map;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.maps.tiled.BaseTiledMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.seven_gnomes.Assets.Asset;
 
 public enum MapAsset implements Asset<TiledMap> {
-    
+
     MAIN("building.tmx");
 
     private final AssetDescriptor<TiledMap> descriptor;
