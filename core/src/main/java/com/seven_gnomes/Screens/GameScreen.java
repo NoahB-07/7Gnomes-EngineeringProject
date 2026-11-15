@@ -12,7 +12,6 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -23,7 +22,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -34,7 +32,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.seven_gnomes.Assets.Inventory;
 import com.seven_gnomes.Assets.Item;
 import com.seven_gnomes.Components.Graphic;
-import com.seven_gnomes.Components.Health;
 import com.seven_gnomes.Components.Timer;
 import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.GameMain;
@@ -42,9 +39,7 @@ import com.seven_gnomes.Input.Controller;
 import com.seven_gnomes.Input.GameControllerState;
 import com.seven_gnomes.Input.IdleControllerState;
 import com.seven_gnomes.Input.KeyboardController;
-import com.seven_gnomes.Systems.ContactDamageSystem;
 import com.seven_gnomes.Systems.ControllerSystem;
-import com.seven_gnomes.Systems.CornSystem;
 import com.seven_gnomes.Systems.GooseSystem;
 import com.seven_gnomes.Systems.MoveSystem;
 import com.seven_gnomes.Systems.RenderSystem;
@@ -78,13 +73,8 @@ public class GameScreen extends ScreenAdapter {
     private final ImmutableArray<Entity> players;
     private final KeyboardController keyboardController;
     private final Rectangle playerFeet = new Rectangle();
-    private static final int LOCKER_CORN = 30;
-    private final Texture cornTexture;
-    private final Item cornItem;
-    private int cornShown = -1;
+    private final Texture placeholderIcon;
     private final Texture keyTexture;
-    private final Animation<TextureRegion> keySpin;
-    private float keyTime;
     private final IntMap<Entity> keysOnMap = new IntMap<>();
     private final IntSet keysHeld = new IntSet();
     private final Rectangle keyBounds = new Rectangle();
@@ -103,10 +93,9 @@ public class GameScreen extends ScreenAdapter {
         worldHeight = viewport.getWorldHeight();
         pauseScreen=new Texture("Pause.png");
 
-        cornTexture = new Texture("corn.png");
+        // placeholder till items team has real icons
+        placeholderIcon = new Texture("dot.png");
         keyTexture = new Texture("key.png");
-        // key png is 12 spinning frames side by side
-        keySpin = new Animation<>(0.18f, TextureRegion.split(keyTexture, keyTexture.getWidth() / 12, keyTexture.getHeight())[0]);
         gooseTexture = new Texture("temp_goose_sprite.png");
 
         // Camera
@@ -118,8 +107,6 @@ public class GameScreen extends ScreenAdapter {
         engine.addSystem(new ControllerSystem(game));
         engine.addSystem(new MoveSystem());
         engine.addSystem(new GooseSystem(timer, new TextureRegion(gooseTexture)));
-        engine.addSystem(new CornSystem(new TextureRegion(cornTexture)));
-        engine.addSystem(new ContactDamageSystem());
         engine.addSystem(new RenderSystem(batch, viewport, camera));
 
         keyboardController = new KeyboardController(GameControllerState.class, engine, inventory);
@@ -157,16 +144,9 @@ public class GameScreen extends ScreenAdapter {
 
         stage.addActor(pauseButton);
         stage.addActor(timer.getTimer());
-
         stage.addActor(inventory.getInventBar());
         for(Image slot : inventory.getInventorySlots()){
             stage.addActor(slot);
-        }
-        // corn lives in first inventory slot with how many under it
-        cornItem = new Item("corn", cornTexture);
-        inventory.addItem(cornItem);
-        for (Label count : inventory.getSlotCounts()) {
-            stage.addActor(count);
         }
 
 
@@ -186,12 +166,7 @@ public class GameScreen extends ScreenAdapter {
         buildingMap = new BuildingMap(tiledMap, GameMain.UNIT_SCALE);
         engine.getSystem(MoveSystem.class).setMap(buildingMap);
         engine.getSystem(GooseSystem.class).setMap(tiledMap, buildingMap);
-        engine.getSystem(CornSystem.class).setMap(buildingMap);
         tiledService.setMap(tiledMap);
-        // hidden health for now no bar drawn
-        for (int i = 0; i < players.size(); i++) {
-            players.get(i).add(new Health(ContactDamageSystem.PLAYER_HEALTH, ContactDamageSystem.PLAYER_HEALTH));
-        }
         spawnKeys();
         game.setInputProcessor(stage, keyboardController);
 
@@ -248,7 +223,6 @@ public class GameScreen extends ScreenAdapter {
         engine.update(delta);
         checkLockers();
         checkKeys();
-        updateCornSlot();
         resetCamera();
     if(!paused){
         stage.act(delta);
@@ -269,7 +243,7 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        cornTexture.dispose();
+        placeholderIcon.dispose();
         keyTexture.dispose();
         gooseTexture.dispose();
         for (EntitySystem system: engine.getSystems()){
@@ -300,23 +274,15 @@ public class GameScreen extends ScreenAdapter {
         keyboardController.setActiveState(GameControllerState.class);
     }
 
-    // standing under a locker gives corn
+    // standing under a locker gives an item if theres room
     private void checkLockers() {
-        if (buildingMap == null || players.size() == 0) return;
+        if (buildingMap == null || players.size() == 0 || inventory.getItems().size() >= 5) return;
         updatePlayerFeet();
         MapMarker locker = buildingMap.useLockerAt(playerFeet);
         if (locker != null) {
-            engine.getSystem(CornSystem.class).addCorn(LOCKER_CORN);
-            Gdx.app.log("Locker", "got " + LOCKER_CORN + " corn from " + locker.getName());
+            inventory.addItem(new Item(locker.getString("item", "place_holder"), placeholderIcon));
+            Gdx.app.log("Locker", "got " + locker.getString("item", "") + " from " + locker.getName());
         }
-    }
-
-    private void updateCornSlot() {
-        int corn = engine.getSystem(CornSystem.class).getCorn();
-        if (cornShown == corn) return;
-        cornShown = corn;
-        cornItem.setCount(corn);
-        inventory.updateIcons();
     }
 
     // same feet box as move system
@@ -334,10 +300,9 @@ public class GameScreen extends ScreenAdapter {
         keysOnMap.clear();
         keysHeld.clear();
         escaped = false;
-        TextureRegion region = keySpin.getKeyFrame(0f);
+        TextureRegion region = new TextureRegion(keyTexture);
         for (MapMarker spot : buildingMap.getKeySpots()) {
-            // same pixel size as the map art
-            Vector2 size = new Vector2(region.getRegionWidth() * GameMain.UNIT_SCALE, region.getRegionHeight() * GameMain.UNIT_SCALE);
+            Vector2 size = new Vector2(0.8f, 0.4f);
             Vector2 centre = spot.getCenter();
             Entity key = engine.createEntity();
             key.add(new Transform(new Vector2(centre.x - size.x / 2f, centre.y - size.y / 2f), 0, size, new Vector2(1f, 1f), 0f));
@@ -351,13 +316,10 @@ public class GameScreen extends ScreenAdapter {
     private void checkKeys() {
         if (buildingMap == null || players.size() == 0 || escaped) return;
         updatePlayerFeet();
-        keyTime += Gdx.graphics.getDeltaTime();
-        TextureRegion frame = keySpin.getKeyFrame(keyTime, true);
         for (MapMarker spot : buildingMap.getKeySpots()) {
             int number = spot.getInt("key", 0);
             Entity key = keysOnMap.get(number);
             if (key == null) continue;
-            Graphic.MAPPER.get(key).setRegion(frame);
             Transform transform = Transform.MAPPER.get(key);
             keyBounds.set(transform.getPosition().x, transform.getPosition().y, transform.getSize().x, transform.getSize().y);
             if (keyBounds.overlaps(playerFeet)) {
@@ -366,13 +328,10 @@ public class GameScreen extends ScreenAdapter {
                 keysHeld.add(number);
                 buildingMap.unlockDoor(number);
                 Gdx.app.log("Keys", "picked up key " + number + " and door " + number + " unlocked");
-                // last key sets off geese from every spawn till you escape
-                if (keysOnMap.size == 0) engine.getSystem(GooseSystem.class).startRapidSpawn(Float.MAX_VALUE);
             }
         }
         if (buildingMap.isAtExit(playerFeet)) {
             escaped = true;
-            engine.getSystem(GooseSystem.class).stopRapidSpawn();
             Gdx.app.log("Keys", "escaped through the exit");
         }
     }
@@ -383,11 +342,6 @@ public class GameScreen extends ScreenAdapter {
 
     public int getKeysHeld() {
         return keysHeld.size;
-    }
-
-    public int getPlayerHealth() {
-        if (players.size() == 0 || Health.MAPPER.get(players.first()) == null) return 0;
-        return Health.MAPPER.get(players.first()).getCurrentHealth();
     }
 
     // camera on player but stays inside map
