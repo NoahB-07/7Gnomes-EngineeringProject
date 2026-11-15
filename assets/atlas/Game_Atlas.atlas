@@ -1,9 +1,0 @@
-Game_Atlas.png
-size:2048,2048
-repeat:none
-Character
-bounds:1028,1856,81,132
-dot
-bounds:2,2,960,960
-greybox
-bounds:2,964,1024,1024
