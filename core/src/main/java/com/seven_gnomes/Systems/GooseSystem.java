@@ -20,7 +20,6 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
 import com.seven_gnomes.Assets.GooseFactory;
 import com.seven_gnomes.Components.Goose;
 import com.seven_gnomes.Components.Move;
@@ -29,10 +28,9 @@ import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.GameMain;
 import com.seven_gnomes.Input.Controller;
 import com.seven_gnomes.map.BuildingMap;
-import com.seven_gnomes.map.LockedDoor;
 import com.seven_gnomes.map.MapMarker;
 
-public class GooseSystem extends IteratingSystem implements Disposable {
+public class GooseSystem extends IteratingSystem {
     private Engine engine;
 
     private final Vector2 targetPosition = new Vector2();
@@ -285,8 +283,8 @@ public class GooseSystem extends IteratingSystem implements Disposable {
         move.getDirection().set(targetPosition).sub(transform.getPosition());
     }
 
-    @Override
-    public void dispose() {
-        physicsWorld.dispose();
-    }
+    // @Override
+    // public void dispose() {
+    //     physicsWorld.dispose();
+    // }
 }
