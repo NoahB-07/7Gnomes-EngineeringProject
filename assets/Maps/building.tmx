@@ -250,17 +250,17 @@
         <property name="isExit" type="bool" value="false" />
       </properties>
     </object>
-    <object id="73" name="door_3" type="locked_door" x="928" y="320" width="64" height="96">
+    <object id="73" name="door_3" type="locked_door" x="128" y="320" width="64" height="96">
       <properties>
         <property name="key" type="int" value="3" />
-        <property name="leadsTo" type="string" value="Lecture Theatre" />
+        <property name="leadsTo" type="string" value="Lab" />
         <property name="isExit" type="bool" value="false" />
       </properties>
     </object>
-    <object id="74" name="door_4" type="locked_door" x="128" y="320" width="64" height="96">
+    <object id="74" name="door_4" type="locked_door" x="928" y="320" width="64" height="96">
       <properties>
         <property name="key" type="int" value="4" />
-        <property name="leadsTo" type="string" value="Lab" />
+        <property name="leadsTo" type="string" value="Lecture Theatre" />
         <property name="isExit" type="bool" value="false" />
       </properties>
     </object>
@@ -320,13 +320,13 @@
         <property name="opensDoor" type="string" value="door_3" />
       </properties>
     </object>
-    <object id="94" name="key_4" type="key_spot" x="1124" y="132" width="24" height="24">
+    <object id="94" name="key_4" type="key_spot" x="132" y="100" width="24" height="24">
       <properties>
         <property name="key" type="int" value="4" />
         <property name="opensDoor" type="string" value="door_4" />
       </properties>
     </object>
-    <object id="95" name="key_5" type="key_spot" x="132" y="100" width="24" height="24">
+    <object id="95" name="key_5" type="key_spot" x="1124" y="132" width="24" height="24">
       <properties>
         <property name="key" type="int" value="5" />
         <property name="opensDoor" type="string" value="door_5" />
