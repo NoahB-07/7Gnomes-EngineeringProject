@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -23,9 +24,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.seven_gnomes.Assets.Inventory;
 import com.seven_gnomes.Assets.Item;
+import com.seven_gnomes.Components.Graphic;
 import com.seven_gnomes.Components.Timer;
 import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.GameMain;
@@ -59,6 +63,7 @@ public class GameScreen extends ScreenAdapter {
     private final Engine engine;
     private final TiledService tiledService;
     private final TiledAshleyUtils tiledAshleyUtils;
+    private final GooseSystem gooseSystem;
     final GameMain game;
     final Timer timer;
     final Inventory inventory;
@@ -68,6 +73,11 @@ public class GameScreen extends ScreenAdapter {
     private final KeyboardController keyboardController;
     private final Rectangle playerFeet = new Rectangle();
     private final Texture placeholderIcon;
+    private final Texture keyTexture;
+    private final IntMap<Entity> keysOnMap = new IntMap<>();
+    private final IntSet keysHeld = new IntSet();
+    private final Rectangle keyBounds = new Rectangle();
+    private boolean escaped;
 
 
 
@@ -79,34 +89,30 @@ public class GameScreen extends ScreenAdapter {
         engine = new Engine();
         tiledAshleyUtils = new TiledAshleyUtils(engine,game.getAssetService());
         FitViewport viewport = game.getViewport();
-        batch = game.getBatch();
+        batch =game.getBatch();
+        OrthographicCamera camera = game.getCamera();
         worldWidth = viewport.getWorldWidth();
         worldHeight = viewport.getWorldHeight();
         pauseScreen=new Texture("Pause.png");
-
-        // camera
-        OrthographicCamera camera = game.getCamera();
-        camera.zoom -= 0.5f;
-
         // placeholder till items team has real icons
         placeholderIcon = new Texture("dot.png");
+        keyTexture = new Texture("key.png");
         gooseTexture = new Texture("temp_goose_sprite.png");
-
-        // ECS
-        engine.addSystem(new ControllerSystem(game));
+        gooseSystem = new GooseSystem(timer, new TextureRegion(gooseTexture)); // Still needs texture
+        engine.addSystem(new ControllerSystem());
         engine.addSystem(new MoveSystem());
-        engine.addSystem(new GooseSystem(timer, new TextureRegion(gooseTexture)));
+        engine.addSystem(gooseSystem);
         engine.addSystem(new RenderSystem(batch, viewport, camera));
         keyboardController = new KeyboardController(GameControllerState.class, engine, inventory);
         players = engine.getEntitiesFor(Family.all(Controller.class, Transform.class).get());
 
-        // buttons
+        /// buttons
         stage = new Stage(viewport, batch);
         pstage = new Stage(viewport, batch);
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         skin.getFont("default").getData().setScale(0.15f);
 
-        pauseButton = new TextButton("PAUSE",skin,"text");
+        pauseButton = new TextButton("Pause",skin,"text");
         resumeButton = new TextButton("RESUME", skin, "text");
         restartButton = new TextButton("RESTART", skin, "text");
 
@@ -132,7 +138,10 @@ public class GameScreen extends ScreenAdapter {
         }
 
 
-        //pause end
+        ///pause end
+
+
+
     }
 
     @Override
@@ -144,9 +153,13 @@ public class GameScreen extends ScreenAdapter {
         TiledMap tiledMap = tiledService.loadMap(MapAsset.MAIN);
         buildingMap = new BuildingMap(tiledMap, GameMain.UNIT_SCALE);
         engine.getSystem(MoveSystem.class).setMap(buildingMap);
-        engine.getSystem(GooseSystem.class).setMap(tiledMap, buildingMap);
+        gooseSystem.setMap(tiledMap, buildingMap);
         tiledService.setMap(tiledMap);
+        spawnKeys();
         game.setInputProcessor(stage, keyboardController);
+
+
+
 
 
 
@@ -195,6 +208,7 @@ public class GameScreen extends ScreenAdapter {
         followPlayer();
         engine.update(delta);
         checkLockers();
+        checkKeys();
         resetCamera();
     if(!paused){
         stage.act(delta);
@@ -216,6 +230,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         placeholderIcon.dispose();
+        keyTexture.dispose();
         gooseTexture.dispose();
         for (EntitySystem system: engine.getSystems()){
             if (system instanceof Disposable disposableSystem){
@@ -230,7 +245,7 @@ public class GameScreen extends ScreenAdapter {
         pstage.addActor(restartButton);
         pauseButton.remove();
         timer.pause();
-        // stop moving while paused - Should make a new controller maybe?
+        // stop moving while paused
         keyboardController.setActiveState(IdleControllerState.class);
 
 
@@ -245,21 +260,74 @@ public class GameScreen extends ScreenAdapter {
         keyboardController.setActiveState(GameControllerState.class);
     }
 
-    // standing under a locker gives an item if there's room
+    // standing under a locker gives an item if theres room
     private void checkLockers() {
         if (buildingMap == null || players.size() == 0 || inventory.getItems().size() >= 5) return;
-        Transform transform = Transform.MAPPER.get(players.first());
-        // same feet box as move system
-        playerFeet.set(
-            transform.getPosition().x + transform.getSize().x * 0.1f,
-            transform.getPosition().y,
-            transform.getSize().x * 0.8f,
-            transform.getSize().y * 0.25f);
+        updatePlayerFeet();
         MapMarker locker = buildingMap.useLockerAt(playerFeet);
         if (locker != null) {
             inventory.addItem(new Item(locker.getString("item", "place_holder"), placeholderIcon));
             Gdx.app.log("Locker", "got " + locker.getString("item", "") + " from " + locker.getName());
         }
+    }
+
+    // same feet box as move system
+    private void updatePlayerFeet() {
+        Transform transform = Transform.MAPPER.get(players.first());
+        playerFeet.set(
+            transform.getPosition().x + transform.getSize().x * 0.1f,
+            transform.getPosition().y,
+            transform.getSize().x * 0.8f,
+            transform.getSize().y * 0.25f);
+    }
+
+    // put a key on each key spot in the map
+    private void spawnKeys() {
+        keysOnMap.clear();
+        keysHeld.clear();
+        escaped = false;
+        TextureRegion region = new TextureRegion(keyTexture);
+        for (MapMarker spot : buildingMap.getKeySpots()) {
+            Vector2 size = new Vector2(0.8f, 0.4f);
+            Vector2 centre = spot.getCenter();
+            Entity key = engine.createEntity();
+            key.add(new Transform(new Vector2(centre.x - size.x / 2f, centre.y - size.y / 2f), 0, size, new Vector2(1f, 1f), 0f));
+            key.add(new Graphic(region, Color.WHITE.cpy()));
+            engine.addEntity(key);
+            keysOnMap.put(spot.getInt("key", 0), key);
+        }
+    }
+
+    // walk over key to pick up and its door unlocks straight away
+    private void checkKeys() {
+        if (buildingMap == null || players.size() == 0 || escaped) return;
+        updatePlayerFeet();
+        for (MapMarker spot : buildingMap.getKeySpots()) {
+            int number = spot.getInt("key", 0);
+            Entity key = keysOnMap.get(number);
+            if (key == null) continue;
+            Transform transform = Transform.MAPPER.get(key);
+            keyBounds.set(transform.getPosition().x, transform.getPosition().y, transform.getSize().x, transform.getSize().y);
+            if (keyBounds.overlaps(playerFeet)) {
+                engine.removeEntity(key);
+                keysOnMap.remove(number);
+                keysHeld.add(number);
+                buildingMap.unlockDoor(number);
+                Gdx.app.log("Keys", "picked up key " + number + " and door " + number + " unlocked");
+            }
+        }
+        if (buildingMap.isAtExit(playerFeet)) {
+            escaped = true;
+            Gdx.app.log("Keys", "escaped through the exit");
+        }
+    }
+
+    public boolean hasEscaped() {
+        return escaped;
+    }
+
+    public int getKeysHeld() {
+        return keysHeld.size;
     }
 
     // camera on player but stays inside map
