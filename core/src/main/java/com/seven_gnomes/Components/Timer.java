@@ -1,10 +1,13 @@
 package com.seven_gnomes.Components;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.seven_gnomes.GameMain;
+import com.seven_gnomes.Screens.EndScreen;
 
 public class Timer {
 
@@ -14,17 +17,23 @@ public class Timer {
     float timeSinceLastUpdate;
     public Label timerLabel;
     public Table timerTable;
-    final FitViewport viewport;
+    private FitViewport viewport;
+    private OrthographicCamera camera;
+
     private boolean pause;
+    final GameMain game;
 
 
-    public Timer(final FitViewport viewport){
 
-        this.viewport = viewport;
+    public Timer(final GameMain game){
+
+        this.game = game;
         waitTime = 1f;
         secondTracker = 0;
         minuteTracker = 5;
         timeSinceLastUpdate = 0f;
+        viewport = game.getViewport();
+        camera = game.getCamera();
 
         timerLabel = new Label(String.format("%02d : %02d", minuteTracker, secondTracker), new Label.LabelStyle(new BitmapFont(), Color.RED));
         timerLabel.setFontScale(0.085f);
@@ -46,7 +55,9 @@ public class Timer {
 
                 if (secondTracker == 0) {
                     if (minuteTracker == 0) {
-                        //game over
+                        camera.zoom += 0.5f;
+                        game.setScreen(EndScreen.class);
+                        
                     } else {
                         minuteTracker--;
                         secondTracker = 59;

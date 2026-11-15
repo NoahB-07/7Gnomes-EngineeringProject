@@ -41,7 +41,6 @@ public StartScreen(final GameMain game) {
         // Camera
         camera = game.getCamera();
 
-        //camera.zoom += 0.5f;
 
         engine.addSystem(new RenderSystem(batch,viewport, camera));
         startBackground= new Texture("Start.png");

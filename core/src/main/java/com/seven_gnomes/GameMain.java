@@ -17,7 +17,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.seven_gnomes.Assets.AssetService;
 import com.seven_gnomes.Assets.Inventory;
 import com.seven_gnomes.Components.Timer;
@@ -55,7 +54,7 @@ public class GameMain extends Game {
         assetService = new AssetService(new InternalFileHandleResolver());
         glProfiler = new GLProfiler(Gdx.graphics);
         fpsLogger = new FPSLogger();
-        timer = new Timer(viewport);
+        timer = new Timer(this);
         inventory = new Inventory(viewport);
         glProfiler.enable();
         addScreen(new EndScreen(this));        

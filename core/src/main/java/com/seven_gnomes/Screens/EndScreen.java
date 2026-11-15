@@ -40,6 +40,7 @@ public EndScreen(final GameMain game) {
         endBackground = new Texture("End.png");
         worldWidth = viewport.getWorldWidth();
         worldHeight = viewport.getWorldHeight();
+        
 
         stage = new Stage(viewport, batch);
         ImageButton.ImageButtonStyle restartStyle = new ImageButton.ImageButtonStyle();
