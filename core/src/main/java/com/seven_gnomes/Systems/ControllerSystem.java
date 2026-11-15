@@ -27,6 +27,7 @@ public class ControllerSystem extends IteratingSystem {
                 case DOWN -> moveEntity(entity, 0f, -1f);
                 case LEFT -> moveEntity(entity, -1f, 0f);
                 case RIGHT -> moveEntity(entity, 1f, 0f);
+                case SELECT -> throwCorn(entity);
                 case CANCEL -> pause();
                 case USE_ITEM_ONE -> useItem(0);
                 case USE_ITEM_TWO -> useItem(1);
@@ -47,6 +48,11 @@ public class ControllerSystem extends IteratingSystem {
             }
         }
         controller.getReleasedCommands().clear();
+    }
+
+    private void throwCorn(Entity entity) {
+        CornSystem corn = getEngine().getSystem(CornSystem.class);
+        if (corn != null) corn.shoot(entity);
     }
 
     private void useItem(int itemSlotNumber) {

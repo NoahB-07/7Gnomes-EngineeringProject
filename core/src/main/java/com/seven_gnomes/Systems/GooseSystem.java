@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.ashley.utils.ImmutableArray;
@@ -29,6 +30,7 @@ import com.seven_gnomes.GameMain;
 import com.seven_gnomes.Input.Controller;
 import com.seven_gnomes.map.BuildingMap;
 import com.seven_gnomes.map.LockedDoor;
+import com.seven_gnomes.map.MapMarker;
 
 public class GooseSystem extends IteratingSystem implements Disposable {
     private Engine engine;
@@ -40,6 +42,11 @@ public class GooseSystem extends IteratingSystem implements Disposable {
     private final Array<Body> mapBodies = new Array<>();
 
     private static final int MAX_GEESE = 40;
+    // cap for the last key rapid spawn
+    private static final int RAPID_MAX_GEESE = 75;
+    private static final float RAPID_SPAWN_GAP = 2.5f;
+    private float rapidSpawnTimeLeft = 0f;
+    private float rapidSpawnCooldown = 0f;
     private static final int INITIAL_SPAWN_COUNT = 5;
     private static final int DEFAULT_SPAWN_TIMER_DURATION= 10;
     private static final int RAPID_SPAWN_TIMER_DURATION= 5;
@@ -111,10 +118,63 @@ public class GooseSystem extends IteratingSystem implements Disposable {
         System.out.println("Spawned wave, total geese = " + totalGeeseSpawned);
     }
 
+    private void spawnGooseAt(Vector2 spawnPosition) {
+        GooseFactory.createGoose(
+            engine,
+            gooseTexture,
+            spawnPosition,
+            2,
+            new Vector2(24f * GameMain.UNIT_SCALE, 24f * GameMain.UNIT_SCALE),
+            new Vector2(1f,1f)
+        );
+        totalGeeseSpawned++;
+        activeGeese++;
+    }
+
+    // one goose from every spawn spot every two and a half seconds for this many seconds
+    public void startRapidSpawn(float seconds) {
+        rapidSpawnTimeLeft = seconds;
+        rapidSpawnCooldown = 0f;
+    }
+
+    public void stopRapidSpawn() {
+        rapidSpawnTimeLeft = 0f;
+    }
+
+    public boolean isRapidSpawning() {
+        return rapidSpawnTimeLeft > 0f;
+    }
+
+    private void updateRapidSpawn(float deltaTime) {
+        if (rapidSpawnTimeLeft <= 0f || buildingMap == null) return;
+        rapidSpawnTimeLeft -= deltaTime;
+        rapidSpawnCooldown -= deltaTime;
+        if (rapidSpawnCooldown > 0f) return;
+        rapidSpawnCooldown += RAPID_SPAWN_GAP;
+        for (MapMarker spot : buildingMap.getGooseSpawns()) {
+            if (activeGeese >= RAPID_MAX_GEESE) break;
+            spawnGooseAt(spot.getCenter());
+        }
+        System.out.println("Rapid spawn, total geese = " + totalGeeseSpawned);
+    }
+
     @Override
     public void addedToEngine(Engine engine) {
         super.addedToEngine(engine);
         this.engine = engine;
+        // shot geese lose there body too
+        engine.addEntityListener(Family.all(Goose.class).get(), new EntityListener() {
+            @Override
+            public void entityAdded(Entity entity) {
+            }
+
+            @Override
+            public void entityRemoved(Entity entity) {
+                Body body = gooseBodies.remove(entity);
+                if (body != null) physicsWorld.destroyBody(body);
+                activeGeese--;
+            }
+        });
     }
 
     @Override
@@ -130,6 +190,7 @@ public class GooseSystem extends IteratingSystem implements Disposable {
         } else if (spawnTimer.secondTracker % 5 != 0) {
             waveSpawned = false;
         }
+        updateRapidSpawn(deltaTime);
 
         ImmutableArray<Entity> players = engine.getEntitiesFor(Family.all(Controller.class, Transform.class).get());
 
