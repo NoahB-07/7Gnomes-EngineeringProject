@@ -29,6 +29,7 @@ public class CornSystem extends IteratingSystem {
     private static final float STEP = 0.2f;
     private static final float TIP = 0.1f;
 
+    private int cornUsed;
     private final TextureRegion cornRegion;
     private final Vector2 size;
     private final Vector2 aim = new Vector2(0f, -1f);
@@ -45,6 +46,8 @@ public class CornSystem extends IteratingSystem {
         super(Family.all(Corn.class, Transform.class).get());
         this.cornRegion = cornRegion;
         size = new Vector2(cornRegion.getRegionWidth() * GameMain.UNIT_SCALE, cornRegion.getRegionHeight() * GameMain.UNIT_SCALE);
+        cornUsed =0;
+
     }
 
     @Override
@@ -61,7 +64,10 @@ public class CornSystem extends IteratingSystem {
     public int getCorn() {
         return corn;
     }
+    public int getCornUsed(){
+        return cornUsed;
 
+    }
     public void addCorn(int amount) {
         corn += amount;
     }
@@ -86,7 +92,7 @@ public class CornSystem extends IteratingSystem {
         // feet never in wall so use them if hands are
         if (blockedAt(x, y)) y = pos.y + body.y * 0.125f;
         corn--;
-
+        cornUsed++;
         Entity kernel = getEngine().createEntity();
         kernel.add(new Transform(new Vector2(x - size.x / 2f, y - size.y / 2f), 3, size.cpy(), new Vector2(1f, 1f), 0f));
         kernel.add(new Graphic(cornRegion, Color.WHITE.cpy()));
