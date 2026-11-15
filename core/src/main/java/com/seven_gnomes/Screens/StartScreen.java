@@ -22,6 +22,7 @@ public class StartScreen extends ScreenAdapter{
     private final Texture startBackground;
     private final SpriteBatch batch;
     private final FitViewport viewport;
+    private OrthographicCamera camera;
     private final float worldHeight;
     private final float worldWidth;
     final GameMain game;
@@ -38,7 +39,8 @@ public StartScreen(final GameMain game) {
         batch =game.getBatch();
 
         // Camera
-        OrthographicCamera camera = game.getCamera();
+        camera = game.getCamera();
+
         //camera.zoom += 0.5f;
 
         engine.addSystem(new RenderSystem(batch,viewport, camera));
@@ -61,7 +63,7 @@ public StartScreen(final GameMain game) {
 
         quitButton = new ImageButton(quitStyle);
 
-        startButton.setSize(worldWidth * 0.25f,worldHeight );
+        startButton.setSize(worldWidth * 0.25f,worldHeight*0.07f );
         startButton.setPosition(worldWidth / 2f - startButton.getWidth() / 2f,worldHeight*0.7f - startButton.getHeight() / 2f);
         
         quitButton.setSize(worldWidth * 0.17f,worldHeight *0.07f);
@@ -88,6 +90,8 @@ public StartScreen(final GameMain game) {
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 stage.dispose();
+                camera.zoom -= 0.5f;
+
                game.setScreen(GameScreen.class);
 
 			    dispose();

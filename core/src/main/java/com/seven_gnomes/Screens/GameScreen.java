@@ -21,8 +21,10 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
@@ -50,7 +52,7 @@ import com.seven_gnomes.map.MapMarker;
 
 public class GameScreen extends ScreenAdapter {
 
-    private final TextButton pauseButton;
+    private final ImageButton pauseButton;
     private final TextButton resumeButton;
     private final TextButton restartButton;
     private final SpriteBatch batch;
@@ -98,7 +100,6 @@ public class GameScreen extends ScreenAdapter {
 
         // Camera
         OrthographicCamera camera = game.getCamera();
-        camera.zoom -= 0.5f;
 
         // ECS
         engine = new Engine();
@@ -115,24 +116,30 @@ public class GameScreen extends ScreenAdapter {
         stage = new Stage(viewport, batch);
         pstage = new Stage(viewport, batch);
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
-        skin.getFont("default").getData().setScale(0.15f);
+        skin.getFont("default").getData();
 
-        pauseButton = new TextButton("Pause",skin,"text");
+
+        ImageButton.ImageButtonStyle pauseStyle = new ImageButton.ImageButtonStyle();
+        pauseStyle.imageUp = new TextureRegionDrawable(new TextureRegion(new Texture("pausebutton.png")));
+
+        pauseButton = new ImageButton(pauseStyle);
+
+        pauseButton.setSize(worldWidth * 0.07f,worldHeight*0.08f );
+        pauseButton.setPosition(worldWidth *0.65f ,worldHeight*0.7f);
+        
         resumeButton = new TextButton("RESUME", skin, "text");
         restartButton = new TextButton("RESTART", skin, "text");
 
-        pauseButton.setSize(worldWidth * 0.19f,worldHeight *0.07f);
-        pauseButton.setPosition(worldWidth -pauseButton.getWidth()*1.5f,worldHeight- pauseButton.getHeight()*1.5f);
+        resumeButton.setSize(worldWidth * 0.25f,worldHeight *0.07f);
+        resumeButton.setPosition(worldWidth*0.25f ,worldHeight*0.4f);
 
-        resumeButton.setSize(worldWidth * 0.5f,worldHeight *0.27f);
-        resumeButton.setPosition(worldWidth*0.3f -pauseButton.getWidth()*1.5f,worldHeight*0.3f- pauseButton.getHeight()*1.5f);
-
-        restartButton.setSize(worldWidth * 0.5f,worldHeight *0.27f);
-        restartButton.setPosition(worldWidth*0.3f -pauseButton.getWidth()*1.5f,worldHeight*0.15f- pauseButton.getHeight()*1.5f);
+        restartButton.setSize(worldWidth * 0.2f,worldHeight *0.07f);
+        restartButton.setPosition(worldWidth*0.3f,worldHeight*0.35f);
 
         resumeButton.getStyle().fontColor = Color.WHITE;
-        resumeButton.getLabel().setFontScale(0.25f);
-        restartButton.getLabel().setFontScale(0.25f);
+    
+        resumeButton.getLabel().setFontScale(0.12f);
+        restartButton.getLabel().setFontScale(0.12f);
 
 
         stage.addActor(pauseButton);
@@ -172,7 +179,9 @@ public class GameScreen extends ScreenAdapter {
 
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                restart();
+                stage.dispose();
+                game.create();
+			    dispose();
                 return true;
             }
         });
@@ -222,7 +231,7 @@ public class GameScreen extends ScreenAdapter {
  if(paused){
         batch.begin();
         batch.setColor(1f, 1f, 1f, 0.7f);
-        batch.draw(pauseScreen,0, 0, worldWidth, worldHeight);
+        batch.draw(pauseScreen,8, 8, worldWidth/2, worldHeight/2);
         batch.setColor(1f, 1f, 1f, 1f);
         batch.end();
         pstage.act(delta);

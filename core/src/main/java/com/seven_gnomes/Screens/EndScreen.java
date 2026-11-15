@@ -80,7 +80,7 @@ public EndScreen(final GameMain game) {
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 stage.dispose();
-                game.setScreen(StartScreen.class);
+                game.create();
 			    dispose();
                 return true;
             }
