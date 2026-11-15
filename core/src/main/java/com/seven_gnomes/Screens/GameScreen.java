@@ -12,8 +12,6 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -23,15 +21,16 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.seven_gnomes.Assets.Inventory;
+import com.seven_gnomes.Assets.Item;
 import com.seven_gnomes.Components.Graphic;
 import com.seven_gnomes.Components.Timer;
 import com.seven_gnomes.Components.Transform;
@@ -41,7 +40,6 @@ import com.seven_gnomes.Input.GameControllerState;
 import com.seven_gnomes.Input.IdleControllerState;
 import com.seven_gnomes.Input.KeyboardController;
 import com.seven_gnomes.Systems.ControllerSystem;
-import com.seven_gnomes.Systems.CornSystem;
 import com.seven_gnomes.Systems.GooseSystem;
 import com.seven_gnomes.Systems.MoveSystem;
 import com.seven_gnomes.Systems.RenderSystem;
@@ -54,7 +52,7 @@ import com.seven_gnomes.map.MapMarker;
 
 public class GameScreen extends ScreenAdapter {
 
-    private final TextButton pauseButton;
+    private final ImageButton pauseButton;
     private final TextButton resumeButton;
     private final TextButton restartButton;
     private final SpriteBatch batch;
@@ -75,14 +73,8 @@ public class GameScreen extends ScreenAdapter {
     private final ImmutableArray<Entity> players;
     private final KeyboardController keyboardController;
     private final Rectangle playerFeet = new Rectangle();
-    private static final int LOCKER_CORN = 30;
-    private final Texture cornTexture;
-    private final BitmapFont cornFont;
-    private final Label cornLabel;
-    private int cornShown = -1;
+    private final Texture placeholderIcon;
     private final Texture keyTexture;
-    private final Animation<TextureRegion> keySpin;
-    private float keyTime;
     private final IntMap<Entity> keysOnMap = new IntMap<>();
     private final IntSet keysHeld = new IntSet();
     private final Rectangle keyBounds = new Rectangle();
@@ -101,15 +93,13 @@ public class GameScreen extends ScreenAdapter {
         worldHeight = viewport.getWorldHeight();
         pauseScreen=new Texture("Pause.png");
 
-        cornTexture = new Texture("corn.png");
+        // placeholder till items team has real icons
+        placeholderIcon = new Texture("dot.png");
         keyTexture = new Texture("key.png");
-        // key png is 12 spinning frames side by side
-        keySpin = new Animation<>(0.18f, TextureRegion.split(keyTexture, keyTexture.getWidth() / 12, keyTexture.getHeight())[0]);
         gooseTexture = new Texture("temp_goose_sprite.png");
 
         // Camera
         OrthographicCamera camera = game.getCamera();
-        camera.zoom -= 0.5f;
 
         // ECS
         engine = new Engine();
@@ -117,7 +107,6 @@ public class GameScreen extends ScreenAdapter {
         engine.addSystem(new ControllerSystem(game));
         engine.addSystem(new MoveSystem());
         engine.addSystem(new GooseSystem(timer, new TextureRegion(gooseTexture)));
-        engine.addSystem(new CornSystem(new TextureRegion(cornTexture)));
         engine.addSystem(new RenderSystem(batch, viewport, camera));
 
         keyboardController = new KeyboardController(GameControllerState.class, engine, inventory);
@@ -127,39 +116,34 @@ public class GameScreen extends ScreenAdapter {
         stage = new Stage(viewport, batch);
         pstage = new Stage(viewport, batch);
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
-        skin.getFont("default").getData().setScale(0.15f);
+        skin.getFont("default").getData();
 
-        pauseButton = new TextButton("Pause",skin,"text");
+
+        ImageButton.ImageButtonStyle pauseStyle = new ImageButton.ImageButtonStyle();
+        pauseStyle.imageUp = new TextureRegionDrawable(new TextureRegion(new Texture("pausebutton.png")));
+
+        pauseButton = new ImageButton(pauseStyle);
+
+        pauseButton.setSize(worldWidth * 0.07f,worldHeight*0.08f );
+        pauseButton.setPosition(worldWidth *0.65f ,worldHeight*0.7f);
+        
         resumeButton = new TextButton("RESUME", skin, "text");
         restartButton = new TextButton("RESTART", skin, "text");
 
-        pauseButton.setSize(worldWidth * 0.19f,worldHeight *0.07f);
-        pauseButton.setPosition(worldWidth -pauseButton.getWidth()*1.5f,worldHeight- pauseButton.getHeight()*1.5f);
+        resumeButton.setSize(worldWidth * 0.25f,worldHeight *0.07f);
+        resumeButton.setPosition(worldWidth*0.25f ,worldHeight*0.4f);
 
-        resumeButton.setSize(worldWidth * 0.5f,worldHeight *0.27f);
-        resumeButton.setPosition(worldWidth*0.3f -pauseButton.getWidth()*1.5f,worldHeight*0.3f- pauseButton.getHeight()*1.5f);
-
-        restartButton.setSize(worldWidth * 0.5f,worldHeight *0.27f);
-        restartButton.setPosition(worldWidth*0.3f -pauseButton.getWidth()*1.5f,worldHeight*0.15f- pauseButton.getHeight()*1.5f);
+        restartButton.setSize(worldWidth * 0.2f,worldHeight *0.07f);
+        restartButton.setPosition(worldWidth*0.3f,worldHeight*0.35f);
 
         resumeButton.getStyle().fontColor = Color.WHITE;
-        resumeButton.getLabel().setFontScale(0.25f);
-        restartButton.getLabel().setFontScale(0.25f);
+    
+        resumeButton.getLabel().setFontScale(0.12f);
+        restartButton.getLabel().setFontScale(0.12f);
 
 
         stage.addActor(pauseButton);
         stage.addActor(timer.getTimer());
-
-        // corn count under timer
-        cornFont = new BitmapFont();
-        cornLabel = new Label("", new Label.LabelStyle(cornFont, Color.YELLOW));
-        cornLabel.setFontScale(0.1f);
-        Table cornTable = new Table();
-        cornTable.setPosition(worldWidth * 0.1f, worldHeight * 0.92f);
-        cornTable.add(new Image(cornTexture)).size(1f, 1f).padRight(0.3f);
-        cornTable.add(cornLabel);
-        stage.addActor(cornTable);
-
         stage.addActor(inventory.getInventBar());
         for(Image slot : inventory.getInventorySlots()){
             stage.addActor(slot);
@@ -182,7 +166,6 @@ public class GameScreen extends ScreenAdapter {
         buildingMap = new BuildingMap(tiledMap, GameMain.UNIT_SCALE);
         engine.getSystem(MoveSystem.class).setMap(buildingMap);
         engine.getSystem(GooseSystem.class).setMap(tiledMap, buildingMap);
-        engine.getSystem(CornSystem.class).setMap(buildingMap);
         tiledService.setMap(tiledMap);
         spawnKeys();
         game.setInputProcessor(stage, keyboardController);
@@ -196,7 +179,9 @@ public class GameScreen extends ScreenAdapter {
 
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                restart();
+                stage.dispose();
+                game.create();
+			    dispose();
                 return true;
             }
         });
@@ -238,7 +223,6 @@ public class GameScreen extends ScreenAdapter {
         engine.update(delta);
         checkLockers();
         checkKeys();
-        updateCornLabel();
         resetCamera();
     if(!paused){
         stage.act(delta);
@@ -247,7 +231,7 @@ public class GameScreen extends ScreenAdapter {
  if(paused){
         batch.begin();
         batch.setColor(1f, 1f, 1f, 0.7f);
-        batch.draw(pauseScreen,0, 0, worldWidth, worldHeight);
+        batch.draw(pauseScreen,8, 8, worldWidth/2, worldHeight/2);
         batch.setColor(1f, 1f, 1f, 1f);
         batch.end();
         pstage.act(delta);
@@ -259,8 +243,7 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        cornTexture.dispose();
-        cornFont.dispose();
+        placeholderIcon.dispose();
         keyTexture.dispose();
         gooseTexture.dispose();
         for (EntitySystem system: engine.getSystems()){
@@ -291,22 +274,15 @@ public class GameScreen extends ScreenAdapter {
         keyboardController.setActiveState(GameControllerState.class);
     }
 
-    // standing under a locker gives corn
+    // standing under a locker gives an item if theres room
     private void checkLockers() {
-        if (buildingMap == null || players.size() == 0) return;
+        if (buildingMap == null || players.size() == 0 || inventory.getItems().size() >= 5) return;
         updatePlayerFeet();
         MapMarker locker = buildingMap.useLockerAt(playerFeet);
         if (locker != null) {
-            engine.getSystem(CornSystem.class).addCorn(LOCKER_CORN);
-            Gdx.app.log("Locker", "got " + LOCKER_CORN + " corn from " + locker.getName());
+            inventory.addItem(new Item(locker.getString("item", "place_holder"), placeholderIcon));
+            Gdx.app.log("Locker", "got " + locker.getString("item", "") + " from " + locker.getName());
         }
-    }
-
-    private void updateCornLabel() {
-        int corn = engine.getSystem(CornSystem.class).getCorn();
-        if (cornShown == corn) return;
-        cornShown = corn;
-        cornLabel.setText("x " + corn);
     }
 
     // same feet box as move system
@@ -324,10 +300,9 @@ public class GameScreen extends ScreenAdapter {
         keysOnMap.clear();
         keysHeld.clear();
         escaped = false;
-        TextureRegion region = keySpin.getKeyFrame(0f);
+        TextureRegion region = new TextureRegion(keyTexture);
         for (MapMarker spot : buildingMap.getKeySpots()) {
-            // same pixel size as the map art
-            Vector2 size = new Vector2(region.getRegionWidth() * GameMain.UNIT_SCALE, region.getRegionHeight() * GameMain.UNIT_SCALE);
+            Vector2 size = new Vector2(0.8f, 0.4f);
             Vector2 centre = spot.getCenter();
             Entity key = engine.createEntity();
             key.add(new Transform(new Vector2(centre.x - size.x / 2f, centre.y - size.y / 2f), 0, size, new Vector2(1f, 1f), 0f));
@@ -341,13 +316,10 @@ public class GameScreen extends ScreenAdapter {
     private void checkKeys() {
         if (buildingMap == null || players.size() == 0 || escaped) return;
         updatePlayerFeet();
-        keyTime += Gdx.graphics.getDeltaTime();
-        TextureRegion frame = keySpin.getKeyFrame(keyTime, true);
         for (MapMarker spot : buildingMap.getKeySpots()) {
             int number = spot.getInt("key", 0);
             Entity key = keysOnMap.get(number);
             if (key == null) continue;
-            Graphic.MAPPER.get(key).setRegion(frame);
             Transform transform = Transform.MAPPER.get(key);
             keyBounds.set(transform.getPosition().x, transform.getPosition().y, transform.getSize().x, transform.getSize().y);
             if (keyBounds.overlaps(playerFeet)) {
@@ -356,13 +328,10 @@ public class GameScreen extends ScreenAdapter {
                 keysHeld.add(number);
                 buildingMap.unlockDoor(number);
                 Gdx.app.log("Keys", "picked up key " + number + " and door " + number + " unlocked");
-                // last key sets off geese from every spawn till you escape
-                if (keysOnMap.size == 0) engine.getSystem(GooseSystem.class).startRapidSpawn(Float.MAX_VALUE);
             }
         }
         if (buildingMap.isAtExit(playerFeet)) {
             escaped = true;
-            engine.getSystem(GooseSystem.class).stopRapidSpawn();
             Gdx.app.log("Keys", "escaped through the exit");
         }
     }
