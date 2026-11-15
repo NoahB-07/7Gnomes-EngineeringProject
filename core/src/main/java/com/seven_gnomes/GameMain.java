@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.seven_gnomes.Assets.AssetService;
 import com.seven_gnomes.Assets.Inventory;
 import com.seven_gnomes.Components.Timer;
@@ -50,7 +51,7 @@ public class GameMain extends Game {
         Gdx.input.setInputProcessor(inputMultiplexer );        
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
-        viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
+        viewport = new FitViewport(WORLD_WIDTH,WORLD_HEIGHT,camera);
         assetService = new AssetService(new InternalFileHandleResolver());
         glProfiler = new GLProfiler(Gdx.graphics);
         fpsLogger = new FPSLogger();

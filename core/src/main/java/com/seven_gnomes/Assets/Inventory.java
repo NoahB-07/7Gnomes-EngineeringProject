@@ -7,11 +7,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class Inventory {
-    private ArrayList<Item> items;
-    private Image inventoryBar;
-    private Image[] inventorySlots;
+    private final ArrayList<Item> items;
+    private final Image inventoryBar;
+    private final Image[] inventorySlots;
     final FitViewport viewport;
 
     public Inventory(final FitViewport viewport) {

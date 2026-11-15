@@ -36,7 +36,11 @@ public StartScreen(final GameMain game) {
         Engine engine = new Engine();
         viewport = game.getViewport();
         batch =game.getBatch();
+
+        // Camera
         OrthographicCamera camera = game.getCamera();
+        //camera.zoom += 0.5f;
+
         engine.addSystem(new RenderSystem(batch,viewport, camera));
         startBackground= new Texture("Start.png");
         worldWidth = viewport.getWorldWidth();

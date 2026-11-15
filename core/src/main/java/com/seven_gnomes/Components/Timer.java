@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class Timer {
 
@@ -19,7 +20,7 @@ public class Timer {
 
 
     public Timer(final FitViewport viewport){
-        
+
         this.viewport = viewport;
         waitTime = 1f;
         secondTracker = 0;
