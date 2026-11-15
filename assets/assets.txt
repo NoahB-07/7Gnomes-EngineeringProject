@@ -1,4 +1,5 @@
 CharacterSprite.png
+End.png
 InventoryBar.png
 Maps/Bob_idle_16x16.png
 Maps/Interiors_free_32x32.png
@@ -13,6 +14,8 @@ Maps/tilesets/Interiors_free_32x32.png
 Maps/tilesets/Room_Builder_free_32x32.png
 Maps/tilesets/building_extras_32x32.png
 Pause.png
+Quit.png
+Restart.png
 Start.png
 StartButton.png
 atlas/Game_Atlas.atlas
