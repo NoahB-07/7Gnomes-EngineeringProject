@@ -9,11 +9,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -24,14 +20,15 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.seven_gnomes.Assets.GooseFactory;
 import com.seven_gnomes.Components.Goose;
 import com.seven_gnomes.Components.Move;
 import com.seven_gnomes.Components.Timer;
 import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.GameMain;
-import com.seven_gnomes.Assets.GooseFactory;
 import com.seven_gnomes.Input.Controller;
 import com.seven_gnomes.map.BuildingMap;
+import com.seven_gnomes.map.LockedDoor;
 
 public class GooseSystem extends IteratingSystem implements Disposable {
     private Engine engine;
@@ -42,17 +39,19 @@ public class GooseSystem extends IteratingSystem implements Disposable {
     private final Map<Entity, Body> playerBodies = new IdentityHashMap<>();
     private final Array<Body> mapBodies = new Array<>();
 
-    private static final int MAX_GEESE = 100;
+    private static final int MAX_GEESE = 40;
     private static final int INITIAL_SPAWN_COUNT = 5;
+    private static final int DEFAULT_SPAWN_TIMER_DURATION= 10;
+    private static final int RAPID_SPAWN_TIMER_DURATION= 5;
     private final Timer spawnTimer;
+    private BuildingMap buildingMap;
+    private int waveTimerDuration = DEFAULT_SPAWN_TIMER_DURATION;
     private int waveCounter = 0;
     private int gooseSpawnCount = INITIAL_SPAWN_COUNT;
     private int totalGeeseSpawned = 0;
     private int activeGeese = 0;
     private boolean waveSpawned = false;
     private final TextureRegion gooseTexture;
-    private final Array<Vector2> spawnPositions = new Array<>();
-
 
     public GooseSystem(Timer timer, TextureRegion gooseTexture) {
         super(Family.all(Goose.class, Transform.class, Move.class).get());
@@ -63,25 +62,21 @@ public class GooseSystem extends IteratingSystem implements Disposable {
     }
 
     public void setMap(TiledMap map, BuildingMap buildingMap) {
-        for (Body body : mapBodies) {
+        if (this.buildingMap == null) {
+            this.buildingMap = buildingMap;
+        }
+        for (Body body: mapBodies) {
             physicsWorld.destroyBody(body);
         }
         mapBodies.clear();
-        spawnPositions.clear();
-        MapLayer spawnLayer = map.getLayers().get("spawns");
 
-        for (MapObject obj: spawnLayer.getObjects()) {
-            Object type = obj.getProperties().get("type");
-
-            Rectangle bounds = ((RectangleMapObject) obj).getRectangle();
-            Vector2 pos = new Vector2(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2).scl(GameMain.UNIT_SCALE);
-            if ("goose_spawn".equals(type)) {
-                spawnPositions.add(pos);
-            }
+        for (Rectangle solid: this.buildingMap.getSolids()) {
+            createMapFixture(solid);
         }
 
-        for (Rectangle solid : buildingMap.getSolids()) {
-            createMapFixture(solid);
+        for (LockedDoor door: this.buildingMap.getDoors()) {
+           Rectangle rect = door.getBounds(); 
+           createMapFixture(rect);
         }
     }
 
@@ -102,25 +97,22 @@ public class GooseSystem extends IteratingSystem implements Disposable {
     }
 
     private void spawnGooseWave(int amount) {
-        if (spawnPositions.size == 0) {
-            throw new IllegalStateException("map has no goose spawn positions");
-        }
         for (int i = 0; i < amount; i++) {
-            Vector2 spawnPosition = spawnPositions.get(MathUtils.random(spawnPositions.size - 1));
-            GooseFactory.createGoose(
-                engine,
-                gooseTexture,
-                spawnPosition,
-                2,
-                new Vector2(24f * GameMain.UNIT_SCALE, 24f * GameMain.UNIT_SCALE),
-                new Vector2(1f,1f)
-            );
-            totalGeeseSpawned++;
-            activeGeese++;
+            if (activeGeese < MAX_GEESE) {
+                Vector2 spawnPosition = this.buildingMap.randomGooseSpawn();
+                GooseFactory.createGoose(
+                    engine,
+                    gooseTexture,
+                    spawnPosition,
+                    2,
+                    new Vector2(24f * GameMain.UNIT_SCALE, 24f * GameMain.UNIT_SCALE),
+                    new Vector2(1f,1f)
+                );
+                totalGeeseSpawned++;
+                activeGeese++;
+            }
         }
         gooseSpawnCount++;
-
-        // Remove in final
         System.out.println("Spawned wave, total geese = " + totalGeeseSpawned);
     }
 
@@ -132,7 +124,11 @@ public class GooseSystem extends IteratingSystem implements Disposable {
 
     @Override
     public void update(float deltaTime) {
-        if (spawnTimer.secondTracker % 5 == 0 && activeGeese < MAX_GEESE && !waveSpawned) {
+        if (spawnTimer.minuteTracker < 1) {
+            waveTimerDuration = RAPID_SPAWN_TIMER_DURATION;
+        }
+
+        if (spawnTimer.secondTracker % waveTimerDuration == 0 && activeGeese < MAX_GEESE && !waveSpawned) {
             spawnGooseWave(gooseSpawnCount);
             waveCounter++;
             waveSpawned= true;
@@ -147,8 +143,7 @@ public class GooseSystem extends IteratingSystem implements Disposable {
             super.update(deltaTime);
         }
 
-        // player collisions
-        for (Entity player : players) {
+        for (Entity player: players) {
             Transform transform = Transform.MAPPER.get(player);
             Body body = playerBodies.get(player);
             if (body == null) {
@@ -162,10 +157,9 @@ public class GooseSystem extends IteratingSystem implements Disposable {
                 );
             }
         }
-        //
 
         ImmutableArray<Entity> geese = engine.getEntitiesFor(Family.all(Goose.class, Transform.class, Move.class).get());
-        for (Entity goose : geese) {
+        for (Entity goose: geese) {
             Body body = gooseBodies.get(goose);
             if (body == null) {
                 body = createGooseBody(goose);
@@ -183,7 +177,7 @@ public class GooseSystem extends IteratingSystem implements Disposable {
 
         physicsWorld.step(deltaTime, 6, 2);
 
-        for (Entity goose : geese) {
+        for (Entity goose: geese) {
             Body body = gooseBodies.get(goose);
             Transform transform = Transform.MAPPER.get(goose);
             transform.getPosition().set(
@@ -209,8 +203,6 @@ public class GooseSystem extends IteratingSystem implements Disposable {
         shape.setAsBox(size.x / 2f, size.y / 2f);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        fixtureDef.density = 1f;
-        fixtureDef.friction = 0.2f;
         body.createFixture(fixtureDef);
         shape.dispose();
         return body;
