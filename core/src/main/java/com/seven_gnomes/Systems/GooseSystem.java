@@ -137,10 +137,6 @@ public class GooseSystem extends IteratingSystem implements Disposable {
         rapidSpawnCooldown = 0f;
     }
 
-    public void stopRapidSpawn() {
-        rapidSpawnTimeLeft = 0f;
-    }
-
     public boolean isRapidSpawning() {
         return rapidSpawnTimeLeft > 0f;
     }

@@ -30,8 +30,6 @@ public class GameMain extends Game {
     static final float WORLD_WIDTH = 32f;
     static final float WORLD_HEIGHT = 32f;
     public static final float UNIT_SCALE = 1f/32f;
-    private Timer timer;
-    private Inventory inventory;
     private SpriteBatch batch;
     private FitViewport viewport;
     private OrthographicCamera camera;
@@ -50,19 +48,19 @@ public class GameMain extends Game {
 
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         inputMultiplexer = new InputMultiplexer();
-        Gdx.input.setInputProcessor(inputMultiplexer );        
+        Gdx.input.setInputProcessor(inputMultiplexer );
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         viewport = new FitViewport(WORLD_WIDTH,WORLD_HEIGHT,camera);
         assetService = new AssetService(new InternalFileHandleResolver());
         glProfiler = new GLProfiler(Gdx.graphics);
         fpsLogger = new FPSLogger();
-        timer = new Timer(viewport);
-        inventory = new Inventory(viewport);
+        Timer timer = new Timer(viewport);
+        Inventory inventory = new Inventory(viewport);
         glProfiler.enable();
-        addScreen(new EndScreen(this));        
+        addScreen(new EndScreen(this));
         addScreen(new StartScreen(this));
-        addScreen(new GameScreen(this, timer,inventory));
+        addScreen(new GameScreen(this, timer, inventory));
         setScreen(StartScreen.class);
     }
 
@@ -82,7 +80,7 @@ public class GameMain extends Game {
     public SpriteBatch getBatch() {
         return batch;
     }
-   
+
 
     public FitViewport getViewport() {
         return viewport;

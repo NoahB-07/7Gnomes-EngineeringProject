@@ -42,12 +42,7 @@ import com.seven_gnomes.Input.Controller;
 import com.seven_gnomes.Input.GameControllerState;
 import com.seven_gnomes.Input.IdleControllerState;
 import com.seven_gnomes.Input.KeyboardController;
-import com.seven_gnomes.Systems.ContactDamageSystem;
-import com.seven_gnomes.Systems.ControllerSystem;
-import com.seven_gnomes.Systems.CornSystem;
-import com.seven_gnomes.Systems.GooseSystem;
-import com.seven_gnomes.Systems.MoveSystem;
-import com.seven_gnomes.Systems.RenderSystem;
+import com.seven_gnomes.Systems.*;
 import com.seven_gnomes.Tiled.TiledAshleyUtils;
 import com.seven_gnomes.Tiled.TiledService;
 import com.seven_gnomes.map.BuildingMap;
@@ -79,8 +74,11 @@ public class GameScreen extends ScreenAdapter {
     private final KeyboardController keyboardController;
     private final Rectangle playerFeet = new Rectangle();
     private static final int LOCKER_CORN = 30;
+    private static final int LOCKER_SANDWICH = 1;
     private final Texture cornTexture;
     private final Item cornItem;
+    private final Texture sandwichTexture;
+    private final Item sandwichItem;
     private int cornShown = -1;
     private final Texture keyTexture;
     private final Animation<TextureRegion> keySpin;
@@ -103,7 +101,8 @@ public class GameScreen extends ScreenAdapter {
         worldHeight = viewport.getWorldHeight();
         pauseScreen=new Texture("Pause.png");
 
-        cornTexture = new Texture("corn.png");
+        sandwichTexture = new Texture("sandwich.png");
+        cornTexture = new Texture("popcorn_bowl.png");
         keyTexture = new Texture("key.png");
         // key png is 12 spinning frames side by side
         keySpin = new Animation<>(0.18f, TextureRegion.split(keyTexture, keyTexture.getWidth() / 12, keyTexture.getHeight())[0]);
@@ -118,7 +117,8 @@ public class GameScreen extends ScreenAdapter {
         engine.addSystem(new ControllerSystem(game));
         engine.addSystem(new MoveSystem());
         engine.addSystem(new GooseSystem(timer, new TextureRegion(gooseTexture)));
-        engine.addSystem(new CornSystem(new TextureRegion(cornTexture)));
+        engine.addSystem(new CornSystem(new TextureRegion(new Texture("corn.png"))));
+        engine.addSystem(new SandwichSystem());
         engine.addSystem(new ContactDamageSystem());
         engine.addSystem(new RenderSystem(batch, viewport, camera));
 
@@ -139,7 +139,7 @@ public class GameScreen extends ScreenAdapter {
 
         pauseButton.setSize(worldWidth * 0.07f,worldHeight*0.08f );
         pauseButton.setPosition(worldWidth *0.65f ,worldHeight*0.7f);
-        
+
         resumeButton = new TextButton("RESUME", skin, "text");
         restartButton = new TextButton("RESTART", skin, "text");
 
@@ -150,7 +150,7 @@ public class GameScreen extends ScreenAdapter {
         restartButton.setPosition(worldWidth*0.3f,worldHeight*0.35f);
 
         resumeButton.getStyle().fontColor = Color.WHITE;
-    
+
         resumeButton.getLabel().setFontScale(0.12f);
         restartButton.getLabel().setFontScale(0.12f);
 
@@ -164,7 +164,9 @@ public class GameScreen extends ScreenAdapter {
         }
         // corn lives in first inventory slot with how many under it
         cornItem = new Item("corn", cornTexture);
+        sandwichItem = new Item("sandwich", sandwichTexture);
         inventory.addItem(cornItem);
+        inventory.addItem(sandwichItem);
         for (Label count : inventory.getSlotCounts()) {
             stage.addActor(count);
         }
@@ -249,6 +251,7 @@ public class GameScreen extends ScreenAdapter {
         checkLockers();
         checkKeys();
         updateCornSlot();
+        updateSandwichSlot();
         resetCamera();
         if(getPlayerHealth()<=0 || timer.getTimePassed()==300){
             game.setPlayerEscaped(false);
@@ -276,6 +279,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         cornTexture.dispose();
+        sandwichTexture.dispose();
         keyTexture.dispose();
         gooseTexture.dispose();
         for (EntitySystem system: engine.getSystems()){
@@ -313,8 +317,15 @@ public class GameScreen extends ScreenAdapter {
         MapMarker locker = buildingMap.useLockerAt(playerFeet);
         if (locker != null) {
             engine.getSystem(CornSystem.class).addCorn(LOCKER_CORN);
+            engine.getSystem(SandwichSystem.class).addSandwiches(LOCKER_SANDWICH);
             Gdx.app.log("Locker", "got " + LOCKER_CORN + " corn from " + locker.getName());
         }
+    }
+
+    private void updateSandwichSlot() {
+        int sandwich = engine.getSystem(SandwichSystem.class).getSandwich();
+        sandwichItem.setCount(sandwich);
+        inventory.updateIcons();
     }
 
     private void updateCornSlot() {
@@ -379,7 +390,6 @@ public class GameScreen extends ScreenAdapter {
         if (buildingMap.isAtExit(playerFeet)) {
             escaped = true;
             game.setPlayerEscaped(true);
-            engine.getSystem(GooseSystem.class).stopRapidSpawn();
             Gdx.app.log("Keys", "escaped through the exit");
             endGame();
         }
@@ -389,7 +399,7 @@ public class GameScreen extends ScreenAdapter {
         return escaped;
     }
     public void endGame(){
-        game.getCamera().zoom +=0.5;
+        game.getCamera().zoom += 0.5f;
         stage.dispose();
         game.setFinalTime(timer.getTimePassed());
         game.setCornUsed(engine.getSystem(CornSystem.class).getCornUsed());
