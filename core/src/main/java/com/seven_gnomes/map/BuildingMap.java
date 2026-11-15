@@ -12,6 +12,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+/**
+ * Building map used in game where the player character is
+ */
 public class BuildingMap {
     public static final int EXIT_DOOR = 5;
 
@@ -37,8 +40,8 @@ public class BuildingMap {
     private final Rectangle probe = new Rectangle();
     private final Array<MapMarker> hits = new Array<>();
 
-    // map comes from asset service so dont dispose it here
     public BuildingMap(TiledMap tiledMap, float unitScale) {
+        // map comes from asset service so dont dispose it here
         this.tiledMap = tiledMap;
         this.unitScale = unitScale;
 
@@ -71,6 +74,11 @@ public class BuildingMap {
         if (exitArea == null) throw new IllegalStateException("map has no exit area");
     }
 
+    /**
+     * Checks if the area is blocked
+     * @param r rectangle
+     * @return true or false whether it is blocked
+     */
     public boolean isBlocked(Rectangle r) {
         if (r.x < 0 || r.y < 0 || r.x + r.width > width || r.y + r.height > height) return true;
         for (Rectangle s : solids) if (s.overlaps(r)) return true;
@@ -78,6 +86,12 @@ public class BuildingMap {
         return false;
     }
 
+    /**
+     * checks whether it is walkable
+     * @param x pos in the x axis
+     * @param y pos in the y axis
+     * @return true or false for if it is walkable
+     */
     public boolean isWalkable(float x, float y) {
         float s = tileSize * 0.02f;
         probe.set(x - s / 2f, y - s / 2f, s, s);
@@ -117,15 +131,33 @@ public class BuildingMap {
         return false;
     }
 
+    /**
+     * Gets all solid objects on the map
+     * @return an array of all the solids
+     */
     public Array<Rectangle> getSolids() { return solids; }
 
+    /**
+     * Gets all doors on the map
+     * @return an array of all the doors
+     */
     public Array<LockedDoor> getDoors() { return doors; }
 
+    /**
+     * Gets a specific locked door
+     * @param number the id of the door
+     * @return the door or null
+     */
     public LockedDoor getDoor(int number) {
         for (LockedDoor d : doors) if (d.getNumber() == number) return d;
         return null;
     }
 
+    /**
+     * Checks whether a door is locked
+     * @param number the id of the door
+     * @return whether the door is locked
+     */
     public boolean isDoorLocked(int number) {
         LockedDoor d = getDoor(number);
         return d != null && d.isLocked();

@@ -10,6 +10,9 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.seven_gnomes.Assets.AssetService;
 import com.seven_gnomes.map.MapAsset;
 
+/**
+ * Tiled Service for using the tmx map format
+ */
 public class TiledService {
 
     private final AssetService assetService;
@@ -18,6 +21,10 @@ public class TiledService {
     private Consumer<TiledMap> mapChangeConsumer;
     private Consumer<TiledMapTileMapObject> loadObjectConsumer;
 
+    /**
+     * Initialises base variables 
+     * @param assetService handles assets
+     */
     public TiledService(AssetService assetService){
         this.assetService = assetService;
         mapChangeConsumer = null;
@@ -25,6 +32,11 @@ public class TiledService {
         currentMap = null;
     }
 
+    /**
+     * Loads the map
+     * @param mapAsset the asset for the map
+     * @return the map
+     */
     public TiledMap loadMap(MapAsset mapAsset){
 
         TiledMap map = assetService.load(mapAsset);
@@ -32,6 +44,10 @@ public class TiledService {
         return map;
     }
 
+    /**
+     * Sets the map to the current map
+     * @param map current map
+     */
     public void setMap(TiledMap map){
         if (currentMap != null){
             assetService.unload(currentMap.getProperties().get("mapAsset", MapAsset.class));
@@ -43,6 +59,10 @@ public class TiledService {
         }
     }
 
+    /**
+     * Loads "objects" layer
+     * @param map current map
+     */
     public void loadMapObjects(TiledMap map){
         for(MapLayer layer: map.getLayers()) {
             if ("Objects".equals(layer.getName())){
@@ -52,6 +72,10 @@ public class TiledService {
 
     }
 
+    /**
+     * Loads every object in the objects layer
+     * @param objectLayer the object layer
+     */
     public void loadObjectLayer(MapLayer objectLayer){
         if(loadObjectConsumer == null) return;
         for (MapObject mapObject : objectLayer.getObjects()) {

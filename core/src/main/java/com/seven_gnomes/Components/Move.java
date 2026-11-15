@@ -4,6 +4,9 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
 
+/**
+ * Move component for entities
+ */
 public class Move implements Component {
     public static final ComponentMapper<Move> MAPPER = ComponentMapper.getFor(Move.class);
 
@@ -12,6 +15,10 @@ public class Move implements Component {
     private final Vector2 direction;
     private boolean rooted;
 
+    /**
+     * Initialises maxspeed
+     * @param maxSpeed Maximum speed it can go
+     */
     public Move(float maxSpeed) {
         this.maxSpeed = maxSpeed;
         direction = new Vector2();

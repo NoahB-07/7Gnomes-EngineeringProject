@@ -4,6 +4,9 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
 
+/**
+ * Transform component
+ */
 public class Transform implements Component, Comparable<Transform> {
     public static final ComponentMapper<Transform> MAPPER = ComponentMapper.getFor(Transform.class);
 
@@ -13,7 +16,14 @@ public class Transform implements Component, Comparable<Transform> {
     private final Vector2 scaling;
     private final float rotation;
 
-
+    /**
+     * Initialises transform
+     * @param position current location
+     * @param z layer
+     * @param size width and height
+     * @param scaling multiplier for size
+     * @param rotation angle
+     */
     public Transform(Vector2 position, int z, Vector2 size, Vector2 scaling, float rotation) {
         this.position = position;
         this.z = z;

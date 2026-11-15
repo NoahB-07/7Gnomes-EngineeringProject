@@ -4,6 +4,9 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
+/**
+ * Locked door for the doors that the player needs to find a key for and is unable to go through without
+ */
 public class LockedDoor {
     private final int number;
     private final String leadsTo;

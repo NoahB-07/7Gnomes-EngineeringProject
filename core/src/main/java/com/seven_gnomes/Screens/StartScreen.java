@@ -18,6 +18,9 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.seven_gnomes.GameMain;
 import com.seven_gnomes.Systems.RenderSystem;
 
+/**
+ * Start screen displays when the program begins
+ */
 public class StartScreen extends ScreenAdapter{
     private final Texture startBackground;
     private final SpriteBatch batch;
@@ -31,8 +34,11 @@ public class StartScreen extends ScreenAdapter{
     private final ImageButton quitButton;
 
 
-
-public StartScreen(final GameMain game) {
+    /**
+     * Constructor of start screen
+     * @param game hands the current game
+     */
+    public StartScreen(final GameMain game) {
         this.game = game;
         Engine engine = new Engine();
         viewport = game.getViewport();
@@ -76,13 +82,21 @@ public StartScreen(final GameMain game) {
 
 
     }
+
+    /**
+     * Render start screen
+     * @param delta The time in seconds since the last render.
+     */
    @Override
     public void render(float delta) {
         draw();
 
     }
 
- @Override
+    /**
+     * Call to set as current screen
+     */
+    @Override
     public void show() {
         game.setInputProcessor(stage);
          startButton.addListener(new InputListener(){
@@ -111,7 +125,9 @@ public StartScreen(final GameMain game) {
     }
 
 
-
+    /**
+     * Draw components to start screen
+     */
    private void draw() {
 
     ScreenUtils.clear(Color.BLACK);

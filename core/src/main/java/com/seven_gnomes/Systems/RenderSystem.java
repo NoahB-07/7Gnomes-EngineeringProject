@@ -17,6 +17,9 @@ import com.seven_gnomes.Components.Graphic;
 import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.GameMain;
 
+/**
+ * Render system to render everything onto the screen
+ */
 public class RenderSystem extends SortedIteratingSystem implements Disposable {
 
     private final OrthogonalTiledMapRenderer mapRenderer;
@@ -26,6 +29,12 @@ public class RenderSystem extends SortedIteratingSystem implements Disposable {
     private int[] belowLayers = new int[0];
     private int[] aboveLayers = new int[0];
 
+    /**
+     * Initialises the base variables
+     * @param batch the sprite batch used
+     * @param viewport the viewport for the game
+     * @param camera the camera to show what to render
+     */
     public RenderSystem(SpriteBatch batch, Viewport viewport, OrthographicCamera camera){
         super(
             Family.all(Transform.class, Graphic.class).get(),
@@ -81,6 +90,10 @@ public class RenderSystem extends SortedIteratingSystem implements Disposable {
 
     }
 
+    /**
+     * Sets the map
+     * @param tiledMap the given map to set to
+     */
     public void setMap(TiledMap tiledMap){
         mapRenderer.setMap(tiledMap);
         // above layer gets drawn after entities and the rest before

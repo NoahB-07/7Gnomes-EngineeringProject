@@ -12,7 +12,9 @@ import com.seven_gnomes.Components.Health;
 import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.Input.Controller;
 
-// geese touching the player take one health a second not every frame
+/** 
+ * Contact system for damaging when geese are touching the player take one health a second not every frame
+ */ 
 public class ContactDamageSystem extends IteratingSystem {
     public static final int PLAYER_HEALTH = 30;
     private static final int DAMAGE = 1;
@@ -50,6 +52,11 @@ public class ContactDamageSystem extends IteratingSystem {
         Gdx.app.log("Health", "goose hit player health now " + health.getCurrentHealth() + " of " + health.getMaxHealth());
     }
 
+    /**
+     * Get if the player is touching the goose
+     * @param player the player entity
+     * @return whether contact has been made
+     */
     private boolean touchingGoose(Entity player) {
         Transform transform = Transform.MAPPER.get(player);
         playerBounds.set(

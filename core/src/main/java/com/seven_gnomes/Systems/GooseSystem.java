@@ -30,6 +30,9 @@ import com.seven_gnomes.Input.Controller;
 import com.seven_gnomes.map.BuildingMap;
 import com.seven_gnomes.map.MapMarker;
 
+/**
+ * Goose System is the system used for the main enemies of the game
+ */
 public class GooseSystem extends IteratingSystem {
     private Engine engine;
 
@@ -58,6 +61,11 @@ public class GooseSystem extends IteratingSystem {
     private boolean waveSpawned = false;
     private final TextureRegion gooseTexture;
 
+    /**
+     * Initialises base variables needed
+     * @param timer the timer used in the game
+     * @param gooseTexture the texture used for the 
+     */
     public GooseSystem(Timer timer, TextureRegion gooseTexture) {
         super(Family.all(Goose.class, Transform.class, Move.class).get());
         Box2D.init();
@@ -66,6 +74,10 @@ public class GooseSystem extends IteratingSystem {
         this.gooseTexture = gooseTexture;
     }
 
+    /**
+     * Sets the tiled map so the geese collide with walls and objects on the map
+     * @param buildingMap the map used in the game
+     */
     public void setMap(TiledMap map, BuildingMap buildingMap) {
         if (this.buildingMap == null) {
             this.buildingMap = buildingMap;
@@ -80,6 +92,10 @@ public class GooseSystem extends IteratingSystem {
         }
     }
 
+    /**
+     * gives every solid tile a shape
+     * @param bounds every solid tile from the map
+     */
     private void createMapFixture(Rectangle bounds) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody;
@@ -96,6 +112,10 @@ public class GooseSystem extends IteratingSystem {
         mapBodies.add(body);
     }
 
+    /**
+     * Spanws a wave of geese in random set locations
+     * @param amount
+     */
     private void spawnGooseWave(int amount) {
         for (int i = 0; i < amount; i++) {
             if (activeGeese < MAX_GEESE) {
@@ -116,6 +136,10 @@ public class GooseSystem extends IteratingSystem {
         System.out.println("Spawned wave, total geese = " + totalGeeseSpawned);
     }
 
+    /**
+     * Spanws a wave of geese in random set locations
+     * @param amount
+     */
     private void spawnGooseAt(Vector2 spawnPosition) {
         GooseFactory.createGoose(
             engine,
@@ -283,8 +307,4 @@ public class GooseSystem extends IteratingSystem {
         move.getDirection().set(targetPosition).sub(transform.getPosition());
     }
 
-    // @Override
-    // public void dispose() {
-    //     physicsWorld.dispose();
-    // }
 }

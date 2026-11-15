@@ -1,5 +1,8 @@
 package com.seven_gnomes.Input;
 
+/**
+ * Contains every output command
+ */
 public enum Command {
     LEFT,
     RIGHT,

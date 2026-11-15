@@ -5,6 +5,9 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 
+/**
+ * Gets commands for associated keys pressed
+ */
 public class GameControllerState implements ControllerState{
 
     private final ImmutableArray<Entity> controllerEntities;

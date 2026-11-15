@@ -5,6 +5,9 @@ import com.badlogic.gdx.maps.tiled.BaseTiledMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.seven_gnomes.Assets.Asset;
 
+/**
+ * The map asset for the game used as the level
+ */
 public enum MapAsset implements Asset<TiledMap> {
 
     MAIN("building.tmx");

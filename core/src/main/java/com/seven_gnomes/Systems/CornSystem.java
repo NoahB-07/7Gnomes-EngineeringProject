@@ -21,7 +21,9 @@ import com.seven_gnomes.GameMain;
 import com.seven_gnomes.Input.Controller;
 import com.seven_gnomes.map.BuildingMap;
 
-// corn works like bullets and one hit kills a goose
+/**
+ * Corn system for handling corn which works like bullets and one hit kills a goose
+ */ 
 public class CornSystem extends IteratingSystem {
     public static final int START_CORN = 20;
     private static final float SPEED = 12f;
@@ -42,12 +44,16 @@ public class CornSystem extends IteratingSystem {
     private BuildingMap map;
     private int corn = START_CORN;
 
+    /**
+     * Initialises the base variables
+     * @param cornRegion texture for the corn
+     */
     public CornSystem(TextureRegion cornRegion) {
         super(Family.all(Corn.class, Transform.class).get());
         this.cornRegion = cornRegion;
         size = new Vector2(cornRegion.getRegionWidth() * GameMain.UNIT_SCALE, cornRegion.getRegionHeight() * GameMain.UNIT_SCALE);
         cornUsed =0;
-
+    
     }
 
     @Override
@@ -57,10 +63,18 @@ public class CornSystem extends IteratingSystem {
         players = engine.getEntitiesFor(Family.all(Controller.class, Transform.class).get());
     }
 
+    /**
+     * Sets the map
+     * @param map the given map
+     */
     public void setMap(BuildingMap map) {
         this.map = map;
     }
 
+    /**
+     * Gets the remaining ammo
+     * @return the remaining ammo
+     */
     public int getCorn() {
         return corn;
     }
@@ -68,6 +82,11 @@ public class CornSystem extends IteratingSystem {
         return cornUsed;
 
     }
+
+    /**
+     * Increases the ammo
+     * @param amount amount to increase the ammo count by
+     */
     public void addCorn(int amount) {
         corn += amount;
     }
@@ -80,7 +99,9 @@ public class CornSystem extends IteratingSystem {
         super.update(deltaTime);
     }
 
-    // throw one corn from the player
+    /**
+     * Throw one corn from the player
+     */
     public void shoot(Entity player) {
         Transform transform = Transform.MAPPER.get(player);
         if (corn <= 0 || transform == null) return;
@@ -100,6 +121,10 @@ public class CornSystem extends IteratingSystem {
         getEngine().addEntity(kernel);
     }
 
+    /**
+     * Updates the direction to throw the corn in
+     * @param player the player entity
+     */
     private void updateAim(Entity player) {
         Move move = Move.MAPPER.get(player);
         if (move != null && !move.getDirection().isZero()) aim.set(move.getDirection()).nor();

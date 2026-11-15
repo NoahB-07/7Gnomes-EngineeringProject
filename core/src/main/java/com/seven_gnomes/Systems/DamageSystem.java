@@ -6,6 +6,9 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.seven_gnomes.Components.Damage;
 import com.seven_gnomes.Components.Health;
 
+/**
+ * Damage system for handling when an entity takes damage
+ */
 public class DamageSystem extends IteratingSystem {
 
     public DamageSystem() {

@@ -1,11 +1,14 @@
 package com.seven_gnomes.Input;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.ComponentMapper;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.ComponentMapper;
+
+/**
+ * Controller compononet for commands
+ */
 public class Controller implements Component {
     public static final ComponentMapper<Controller> MAPPER = ComponentMapper.getFor(Controller.class);
 

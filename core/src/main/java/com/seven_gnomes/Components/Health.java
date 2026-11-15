@@ -3,13 +3,20 @@ package com.seven_gnomes.Components;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 
+/**
+ * The health component 
+ */
 public class Health implements Component {
     public static final ComponentMapper<Health> MAPPER = ComponentMapper.getFor(Health.class);
 
     private int currentHealth;
     private final int maxHealth;
 
-
+    /**
+     * Initialises current and max health
+     * @param currentHealth how much health at the moment
+     * @param maxHealth the maximum amount of health
+     */
     public Health(int currentHealth, int maxHealth) {
         this.currentHealth = currentHealth;
         this.maxHealth = maxHealth;

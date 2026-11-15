@@ -3,14 +3,15 @@ package com.seven_gnomes.Systems;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
-import com.seven_gnomes.Components.Health;
 import com.seven_gnomes.Components.Move;
 import com.seven_gnomes.GameMain;
 import com.seven_gnomes.Input.Command;
 import com.seven_gnomes.Input.Controller;
 
+/**
+ * Controller system to handle inputs from the user
+ */
 public class ControllerSystem extends IteratingSystem {
-
     public ControllerSystem(GameMain game) {
         super(Family.all(Controller.class).get());
         this.game = game;
@@ -61,9 +62,18 @@ public class ControllerSystem extends IteratingSystem {
         }
     }
 
+    /**
+     * Pauses the game
+     */
     private void pause() {
     }
 
+   /**
+     * Moves a given entity
+     * @param entity the entity to move
+     * @param x the x direction
+     * @param y the x direction
+     */
     private void moveEntity(Entity entity, float x, float y) {
         Move move = Move.MAPPER.get(entity);
         if (move == null) return;

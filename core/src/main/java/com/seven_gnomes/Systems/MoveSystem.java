@@ -9,11 +9,17 @@ import com.seven_gnomes.Components.Move;
 import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.map.BuildingMap;
 
+/**
+ * System that handles movement for entities
+ */
 public class MoveSystem extends IteratingSystem {
     private final Vector2 normalisedDirection = new Vector2();
     private final Rectangle feet = new Rectangle();
     private BuildingMap map;
 
+    /**
+     * System handling movement
+     */
     public MoveSystem() {
         super(Family.all(Move.class, Transform.class).get());
     }

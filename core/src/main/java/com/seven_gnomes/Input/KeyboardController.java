@@ -9,10 +9,10 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.seven_gnomes.Assets.Inventory;
 
+/**
+ * Keyboard controller for mapping every key to a command
+ */
 public class KeyboardController extends InputAdapter {
-
-
-
     private static final Map<Integer, Command> KEY_MAPPING = Map.ofEntries(
         Map.entry(Input.Keys.W, Command.UP),
         Map.entry(Input.Keys.A, Command.LEFT),
