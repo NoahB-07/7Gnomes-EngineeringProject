@@ -73,11 +73,6 @@ public class GooseSystem extends IteratingSystem implements Disposable {
         for (Rectangle solid: this.buildingMap.getSolids()) {
             createMapFixture(solid);
         }
-
-        for (LockedDoor door: this.buildingMap.getDoors()) {
-           Rectangle rect = door.getBounds(); 
-           createMapFixture(rect);
-        }
     }
 
     private void createMapFixture(Rectangle bounds) {
