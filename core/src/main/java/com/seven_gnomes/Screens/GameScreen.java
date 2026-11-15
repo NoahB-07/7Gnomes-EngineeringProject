@@ -250,6 +250,12 @@ public class GameScreen extends ScreenAdapter {
         checkKeys();
         updateCornSlot();
         resetCamera();
+        if(getPlayerHealth()<=0 || timer.getTimePassed()==300){
+            game.setPlayerEscaped(false);
+            endGame();
+
+        }
+
     if(!paused){
         stage.act(delta);
         stage.draw();
@@ -293,8 +299,8 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void resume() {
-         stage.addActor(pauseButton);
-         restartButton.remove();
+        stage.addActor(pauseButton);
+        restartButton.remove();
         resumeButton.remove();
         timer.unpause();
         keyboardController.setActiveState(GameControllerState.class);
@@ -372,13 +378,23 @@ public class GameScreen extends ScreenAdapter {
         }
         if (buildingMap.isAtExit(playerFeet)) {
             escaped = true;
+            game.setPlayerEscaped(true);
             engine.getSystem(GooseSystem.class).stopRapidSpawn();
             Gdx.app.log("Keys", "escaped through the exit");
+            endGame();
         }
     }
 
     public boolean hasEscaped() {
         return escaped;
+    }
+    public void endGame(){
+        game.getCamera().zoom +=0.5;
+        stage.dispose();
+        game.setFinalTime(timer.getTimePassed());
+        game.setCornUsed(engine.getSystem(CornSystem.class).getCornUsed());
+        game.setScreen(EndScreen.class);
+        dispose();
     }
 
     public int getKeysHeld() {
@@ -409,7 +425,4 @@ public class GameScreen extends ScreenAdapter {
         batch.setProjectionMatrix(camera.combined);
     }
 
-    public void restart() {
-
-    }
 }
