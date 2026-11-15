@@ -43,6 +43,8 @@ public class GooseSystem extends IteratingSystem implements Disposable {
     private final Array<Body> mapBodies = new Array<>();
 
     private static final int MAX_GEESE = 40;
+    // cap for the rapid spawn event
+    private static final int RAPID_MAX_GEESE = 75;
     private static final int INITIAL_SPAWN_COUNT = 5;
     private final Timer spawnTimer;
     private int waveCounter = 0;
@@ -149,6 +151,7 @@ public class GooseSystem extends IteratingSystem implements Disposable {
         if (rapidSpawnCooldown > 0f) return;
         rapidSpawnCooldown += RAPID_SPAWN_GAP;
         for (Vector2 spot : spawnPositions) {
+            if (activeGeese >= RAPID_MAX_GEESE) break;
             spawnGooseAt(spot);
         }
         System.out.println("Rapid spawn, total geese = " + totalGeeseSpawned);
