@@ -42,7 +42,7 @@ public class GooseSystem extends IteratingSystem implements Disposable {
     private final Map<Entity, Body> playerBodies = new IdentityHashMap<>();
     private final Array<Body> mapBodies = new Array<>();
 
-    private static final int MAX_GEESE = 40;
+    private static final int MAX_GEESE = 100;
     private static final int INITIAL_SPAWN_COUNT = 5;
     private final Timer spawnTimer;
     private int waveCounter = 0;
@@ -119,6 +119,8 @@ public class GooseSystem extends IteratingSystem implements Disposable {
             activeGeese++;
         }
         gooseSpawnCount++;
+
+        // Remove in final
         System.out.println("Spawned wave, total geese = " + totalGeeseSpawned);
     }
 
@@ -145,6 +147,7 @@ public class GooseSystem extends IteratingSystem implements Disposable {
             super.update(deltaTime);
         }
 
+        // player collisions
         for (Entity player : players) {
             Transform transform = Transform.MAPPER.get(player);
             Body body = playerBodies.get(player);
@@ -159,6 +162,7 @@ public class GooseSystem extends IteratingSystem implements Disposable {
                 );
             }
         }
+        //
 
         ImmutableArray<Entity> geese = engine.getEntitiesFor(Family.all(Goose.class, Transform.class, Move.class).get());
         for (Entity goose : geese) {

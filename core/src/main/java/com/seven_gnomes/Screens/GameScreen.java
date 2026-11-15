@@ -98,7 +98,7 @@ public class GameScreen extends ScreenAdapter {
 
         // Camera
         OrthographicCamera camera = game.getCamera();
-        camera.zoom -= 0.9f;
+        camera.zoom -= 0.5f;
 
         // ECS
         engine = new Engine();
