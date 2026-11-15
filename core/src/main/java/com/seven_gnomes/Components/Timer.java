@@ -16,7 +16,7 @@ public class Timer {
     public Table timerTable;
     final FitViewport viewport;
     private boolean pause;
-
+    private int secondsPassed;
 
     public Timer(final FitViewport viewport){
 
@@ -25,6 +25,7 @@ public class Timer {
         secondTracker = 0;
         minuteTracker = 5;
         timeSinceLastUpdate = 0f;
+        secondsPassed =0;
 
         timerLabel = new Label(String.format("%02d : %02d", minuteTracker, secondTracker), new Label.LabelStyle(new BitmapFont(), Color.RED));
         timerLabel.setFontScale(0.085f);
@@ -50,6 +51,7 @@ public class Timer {
                     } else {
                         minuteTracker--;
                         secondTracker = 59;
+                        secondsPassed++;
                     }
                 } else {
                     secondTracker--;
@@ -63,6 +65,11 @@ public class Timer {
         return timerTable;
 
     }
+    public int getTimePassed(){
+        return secondsPassed;
+    }
+    
+
 
     public void pause(){
         pause = true;

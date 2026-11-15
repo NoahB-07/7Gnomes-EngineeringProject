@@ -17,7 +17,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.seven_gnomes.Assets.AssetService;
 import com.seven_gnomes.Assets.Inventory;
 import com.seven_gnomes.Components.Timer;
@@ -40,6 +39,9 @@ public class GameMain extends Game {
     private GLProfiler glProfiler;
     private FPSLogger fpsLogger;
     private InputMultiplexer inputMultiplexer;
+    private boolean playerEscaped;
+    private int cornUsed;
+    private int finalTime;
 
     private final Map<Class<? extends Screen>, Screen> screenCache = new HashMap<>();
 
@@ -129,5 +131,27 @@ public class GameMain extends Game {
         for (InputProcessor processor : processors) {
             inputMultiplexer.addProcessor(processor);
         }
+    }
+    public void setPlayerEscaped(boolean escaped) {
+    this.playerEscaped = escaped;
+}
+
+    public boolean hasPlayerEscaped() {
+    return playerEscaped;
+    }
+
+public void setCornUsed(int cornUsed) {
+    this.cornUsed = cornUsed;
+}
+
+public int getCornUsed() {
+    return cornUsed;
+}
+public void setFinalTime(int time) {
+    finalTime = time;
+}
+
+    public int getFinalTime() {
+    return finalTime;
     }
 }
