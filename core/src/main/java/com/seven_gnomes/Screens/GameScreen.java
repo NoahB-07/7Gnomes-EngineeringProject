@@ -12,6 +12,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -74,6 +75,8 @@ public class GameScreen extends ScreenAdapter {
     private final Rectangle playerFeet = new Rectangle();
     private final Texture placeholderIcon;
     private final Texture keyTexture;
+    private final Animation<TextureRegion> keySpin;
+    private float keyTime;
     private final IntMap<Entity> keysOnMap = new IntMap<>();
     private final IntSet keysHeld = new IntSet();
     private final Rectangle keyBounds = new Rectangle();
@@ -97,6 +100,8 @@ public class GameScreen extends ScreenAdapter {
         // placeholder till items team has real icons
         placeholderIcon = new Texture("dot.png");
         keyTexture = new Texture("key.png");
+        // key png is 12 spinning frames side by side
+        keySpin = new Animation<>(0.18f, TextureRegion.split(keyTexture, keyTexture.getWidth() / 12, keyTexture.getHeight())[0]);
         gooseTexture = new Texture("temp_goose_sprite.png");
         gooseSystem = new GooseSystem(timer, new TextureRegion(gooseTexture)); // Still needs texture
         engine.addSystem(new ControllerSystem());
@@ -286,9 +291,10 @@ public class GameScreen extends ScreenAdapter {
         keysOnMap.clear();
         keysHeld.clear();
         escaped = false;
-        TextureRegion region = new TextureRegion(keyTexture);
+        TextureRegion region = keySpin.getKeyFrame(0f);
         for (MapMarker spot : buildingMap.getKeySpots()) {
-            Vector2 size = new Vector2(0.8f, 0.4f);
+            // same pixel size as the map art
+            Vector2 size = new Vector2(region.getRegionWidth() * GameMain.UNIT_SCALE, region.getRegionHeight() * GameMain.UNIT_SCALE);
             Vector2 centre = spot.getCenter();
             Entity key = engine.createEntity();
             key.add(new Transform(new Vector2(centre.x - size.x / 2f, centre.y - size.y / 2f), 0, size, new Vector2(1f, 1f), 0f));
@@ -302,10 +308,13 @@ public class GameScreen extends ScreenAdapter {
     private void checkKeys() {
         if (buildingMap == null || players.size() == 0 || escaped) return;
         updatePlayerFeet();
+        keyTime += Gdx.graphics.getDeltaTime();
+        TextureRegion frame = keySpin.getKeyFrame(keyTime, true);
         for (MapMarker spot : buildingMap.getKeySpots()) {
             int number = spot.getInt("key", 0);
             Entity key = keysOnMap.get(number);
             if (key == null) continue;
+            Graphic.MAPPER.get(key).setRegion(frame);
             Transform transform = Transform.MAPPER.get(key);
             keyBounds.set(transform.getPosition().x, transform.getPosition().y, transform.getSize().x, transform.getSize().y);
             if (keyBounds.overlaps(playerFeet)) {
