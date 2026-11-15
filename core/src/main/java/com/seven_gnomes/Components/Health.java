@@ -26,4 +26,8 @@ public class Health implements Component {
     public int getMaxHealth() {
         return maxHealth;
     }
+
+    public void addHealth(int numberAdded){
+        currentHealth += numberAdded;
+    }
 }

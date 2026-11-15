@@ -18,10 +18,9 @@ public class KeyboardController extends InputAdapter {
         Map.entry(Input.Keys.A, Command.LEFT),
         Map.entry(Input.Keys.S, Command.DOWN),
         Map.entry(Input.Keys.D, Command.RIGHT),
-        Map.entry(Input.Keys.SPACE, Command.SELECT),
         Map.entry(Input.Keys.ESCAPE, Command.PAUSE),
-        Map.entry(Input.Keys.E, Command.USE_ITEM_ONE),
-        Map.entry(Input.Keys.NUM_2, Command.USE_ITEM_TWO),
+        Map.entry(Input.Keys.SPACE, Command.USE_CORN),
+        Map.entry(Input.Keys.E, Command.USE_BREAD),
         Map.entry(Input.Keys.NUM_3, Command.USE_ITEM_THREE),
         Map.entry(Input.Keys.NUM_4, Command.USE_ITEM_FOUR),
         Map.entry(Input.Keys.NUM_5, Command.USE_ITEM_FIVE)

@@ -68,7 +68,7 @@ public class CornSystem extends IteratingSystem {
 
     @Override
     public void update(float deltaTime) {
-        // keep last way player walked so standing still still aims
+        // keep last way player walked so standing still aims
         if (players.size() > 0) updateAim(players.first());
         deadGeese.clear();
         super.update(deltaTime);

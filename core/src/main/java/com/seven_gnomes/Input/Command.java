@@ -5,11 +5,10 @@ public enum Command {
     RIGHT,
     UP,
     DOWN,
-    SELECT,
-    CANCEL,
-    USE_ITEM_ONE,
-    USE_ITEM_TWO,
+    USE_CORN,
+    USE_BREAD,
     USE_ITEM_THREE,
     USE_ITEM_FOUR,
-    PAUSE, USE_ITEM_FIVE
+    USE_ITEM_FIVE,
+    PAUSE
 }
