@@ -13,7 +13,6 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -21,6 +20,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.seven_gnomes.Assets.AssetService;
 import com.seven_gnomes.Assets.Inventory;
 import com.seven_gnomes.Components.Timer;
+import com.seven_gnomes.Screens.EndScreen;
 import com.seven_gnomes.Screens.GameScreen;
 import com.seven_gnomes.Screens.StartScreen;
 
@@ -30,9 +30,8 @@ public class GameMain extends Game {
     static final float WORLD_WIDTH = 32f;
     static final float WORLD_HEIGHT = 32f;
     public static final float UNIT_SCALE = 1f/32f;
-
-
-    private Texture startBackground;
+    private Timer timer;
+    private Inventory inventory;
     private SpriteBatch batch;
     private FitViewport viewport;
     private OrthographicCamera camera;
@@ -48,20 +47,19 @@ public class GameMain extends Game {
 
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         inputMultiplexer = new InputMultiplexer();
-        Gdx.input.setInputProcessor(inputMultiplexer );
-
-        startBackground= new Texture("Start.png");
+        Gdx.input.setInputProcessor(inputMultiplexer );        
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         assetService = new AssetService(new InternalFileHandleResolver());
         glProfiler = new GLProfiler(Gdx.graphics);
         fpsLogger = new FPSLogger();
-        Timer timer = new Timer(viewport);
-        Inventory inventory = new Inventory(viewport);
+        timer = new Timer(viewport);
+        inventory = new Inventory(viewport);
         glProfiler.enable();
+        addScreen(new EndScreen(this));        
         addScreen(new StartScreen(this));
-        addScreen(new GameScreen(this, timer, inventory));
+        addScreen(new GameScreen(this, timer,inventory));
         setScreen(StartScreen.class);
     }
 
@@ -81,9 +79,7 @@ public class GameMain extends Game {
     public SpriteBatch getBatch() {
         return batch;
     }
-    public Texture getBackground(){
-        return startBackground;
-    }
+   
 
     public FitViewport getViewport() {
         return viewport;
