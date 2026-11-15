@@ -38,9 +38,18 @@ public class BuildingMap implements Disposable {
     private final float heightPx;
     private final Rectangle probe = new Rectangle();
     private final Array<MapMarker> hits = new Array<>();
+
+    /**
+     * Constructor that call constructor with default path to map
+     */
     public BuildingMap() {
         this(DEFAULT_PATH);
     }
+
+    /**
+     * Constructor of BuildingMap, sets map and sets up layers for collisions and interactions
+     * @param tmxPath path to map
+     */
     public BuildingMap(String tmxPath) {
         tiledMap = new TmxMapLoader().load(tmxPath);
         renderer = new OrthogonalTiledMapRenderer(tiledMap, 1f);
@@ -73,16 +82,24 @@ public class BuildingMap implements Disposable {
         if (playerSpawn == null) throw new IllegalStateException(tmxPath + ": no player_spawn in 'spawns'");
         if (exitArea == null) throw new IllegalStateException(tmxPath + ": no 'exit' area");
     }
+
+
     public void renderBelow(OrthographicCamera camera) {
         renderer.setView(camera);
         if (belowLayers.length > 0) renderer.render(belowLayers);
     }
+
     // draw after player
     public void renderAbove(OrthographicCamera camera) {
         renderer.setView(camera);
         if (aboveLayers.length > 0) renderer.render(aboveLayers);
     }
 
+    /**
+     * Checks if player has collided with something
+     * @param r space that could be collided with
+     * @return if there will be a collision
+     */
     public boolean isBlocked(Rectangle r) {
         if (r.x < 0 || r.y < 0 || r.x + r.width > widthPx || r.y + r.height > heightPx) return true;
         for (Rectangle s : solids) if (s.overlaps(r)) return true;
@@ -90,11 +107,24 @@ public class BuildingMap implements Disposable {
         return false;
     }
 
+    /**
+     * Checks player can walk through tile
+     * @param x x coordinate of tile
+     * @param y y coordinate of tile
+     * @return if tile is walkable
+     */
     public boolean isWalkable(float x, float y) {
         probe.set(x - 0.5f, y - 0.5f, 1f, 1f);
         return !isBlocked(probe);
     }
 
+    /**
+     *
+     * @param bounds
+     * @param dx
+     * @param dy
+     * @return
+     */
     public boolean move(Rectangle bounds, float dx, float dy) {
         // small steps so no tunnelling thru walls
         float maxStep = tileSize / 4f;

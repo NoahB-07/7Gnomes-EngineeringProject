@@ -1,0 +1,89 @@
+@startuml
+
+GameScreen <-- Map
+GameScreen <-- Character
+GameScreen <-- Item
+GameScreen <-- Timer
+
+Map <-- Room
+
+Character <|.. Player
+Character <|.. Goose
+
+Item <|.. Key
+Item <|.. CornBag
+Item <|.. Baguette
+
+Player <-- Inventory
+
+Room <-- VendingMachine
+
+Timer <-- RapidSpawn
+
+class GameScreen{
+    map : Map
+    player : Player
+    geese : Array of Goose
+    timer : Timer
+    items : Dictionary of item and ints of positions
+    spawnRate : int
+    display()
+    update()
+}
+
+class Map{
+    room: Array of Room
+    createMap()
+}
+
+class Room{
+    dimensions : Array of ints
+}
+
+interface Character{
+    maxSpeed : int
+    currentSpeed : int
+    health : int
+    position : array of ints
+    loseHealth()
+    attack()
+}
+
+class Player{
+    inventory : Inventory
+    interact()
+    gainHealth()
+}
+
+class Inventory{
+    items : Items
+    changeSlotRight()
+    changeSlotLeft()
+}
+
+class Goose{
+
+}
+
+interface Item{
+    item : asset image
+}
+
+class Timer{
+    timeRemaining : int
+    pause : boolean
+    updateTimer()
+    pause()
+    unpause()
+}
+
+class VendingMachine{
+    giveHealth()
+}
+
+class RapidSpawn{
+    rapidSpawn : boolean
+    startRapidSpawn()
+}
+
+@enduml

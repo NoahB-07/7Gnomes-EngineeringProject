@@ -1,0 +1,85 @@
+@startuml
+
+UI <|-- Timer
+Timer <|-- Events
+Timer <|-- GameUtils
+
+Entities <|-- Character
+Entities <|-- Weapons
+Weapons <|-- Projectile
+
+UI <|-- Room
+UI <|-- Entities
+
+Character <|-- Player
+Character <|-- Goose
+
+class GameUtils{
+    GooseSpawnRate: INT
+    StartGame()
+    EndGame()
+    CheckTimer()
+    ProjectileHit()
+    PickUpItem()
+    SpawnGoose()
+    ChangeHotBarSlot()
+}
+
+Class Events{
+    vendingMachine
+    rapidSpawn
+}
+
+Class UI{
+    OutputHealth()
+    OutputTimer()
+    HotBarOutput()
+    RoomOutput()
+}
+
+Class Entities{
+    Location: ARRAY
+    Appearance: file.obj
+    Disappear()
+}
+
+Class Room{
+    Walls: ARRAY
+    Furnishings: ARRAY
+    startRoomClock()
+}
+
+Class Weapons{
+    Damage: INT
+    Amo: INT
+    reload()
+    shoot()
+}
+
+Class Projectile{
+    speed: INT
+    checkCollision()
+}
+
+Class Player{
+    interact()
+    attack()
+}
+
+Class Timer{
+    time: INT
+    timerUpdate()
+    stopTimer()
+    startTimer()
+}
+
+class Goose{
+    attack()
+}
+
+class Character{
+    health: INT
+    speed: INT
+    maxSpeed: INT
+}
+@enduml

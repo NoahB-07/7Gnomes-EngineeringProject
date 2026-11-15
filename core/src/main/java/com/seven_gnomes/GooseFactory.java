@@ -8,7 +8,21 @@ import com.seven_gnomes.Components.Goose;
 import com.seven_gnomes.Components.Move;
 import com.seven_gnomes.Components.Transform;
 
+/**
+ * Creates the geese and adds them to the game
+ */
 public class GooseFactory {
+
+    /**
+     * Creates a goose and adds it to the game
+     * @param engine
+     * @param gooseTexture goose asset texture
+     * @param spawnPosition position to appear on screen
+     * @param z
+     * @param size
+     * @param scaling
+     * @return
+     */
     public static Entity createGoose(Engine engine, TextureRegion gooseTexture, Vector2 spawnPosition, int z, Vector2 size, Vector2 scaling) {
         Entity goose = engine.createEntity();
         goose.add(new Goose());

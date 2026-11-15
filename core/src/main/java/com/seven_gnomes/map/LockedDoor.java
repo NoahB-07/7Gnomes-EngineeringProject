@@ -12,6 +12,7 @@ public class LockedDoor {
     private boolean locked = true;
     final Array<int[]> cellPositions = new Array<>();
     final Array<TiledMapTileLayer.Cell> savedCells = new Array<>();
+
     LockedDoor(int number, String leadsTo, boolean exit, Rectangle bounds) {
         this.number = number;
         this.leadsTo = leadsTo;

@@ -26,9 +26,11 @@ import com.seven_gnomes.Systems.MoveSystem;
 import com.seven_gnomes.Tiled.TiledAshleyUtils;
 import com.seven_gnomes.Tiled.TiledService;
 
-
+/**
+ * Game Screen object displays the game and initailises the key game components
+ */
 public class GameScreen extends ScreenAdapter {
-    
+
     private TextButton pauseButton;
     private TextButton resumeButton;
     private TextButton restartButton;
@@ -53,7 +55,12 @@ public class GameScreen extends ScreenAdapter {
     private final Engine engine;
 
 
-    
+    /**
+     * Constructor for the game screen, initialising the stage to display the elements on the screen
+     * @param game the game in play
+     * @param timer timer for the game
+     * @param inventory starting inventory
+     */
     public GameScreen(final GameMain game, final Timer timer, final Inventory inventory ) {
         this.game = game;
         this.timer = timer;
@@ -77,11 +84,11 @@ public class GameScreen extends ScreenAdapter {
         pstage = new Stage(viewport, batch);
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         skin.getFont("default").getData().setScale(0.15f);
-        
+
         pauseButton = new TextButton("Pause",skin,"text");
         resumeButton = new TextButton("RESUME", skin, "text");
         restartButton = new TextButton("RESTART", skin, "text");
-        
+
         pauseButton.setSize(worldWidth * 0.19f,worldHeight *0.07f);
         pauseButton.setPosition(worldWidth -pauseButton.getWidth()*1.5f,worldHeight- pauseButton.getHeight()*1.5f);
 
@@ -94,7 +101,7 @@ public class GameScreen extends ScreenAdapter {
         resumeButton.getStyle().fontColor = Color.WHITE;
         resumeButton.getLabel().setFontScale(0.25f);
         restartButton.getLabel().setFontScale(0.25f);
-        
+
 
         stage.addActor(pauseButton);
         stage.addActor(timer.getTimer());
@@ -102,14 +109,17 @@ public class GameScreen extends ScreenAdapter {
         for(Image slot : inventory.getInventorySlots()){
             stage.addActor(slot);
         }
-        
+
 
         ///pause end
 
-        
+
 
     }
 
+    /**
+     * Called to set current screen to game screen, initialises listeners for buttons on screen
+     */
     @Override
     public void show() {
         Consumer<TiledMap> renderConsumer = engine.getSystem(RenderSystem.class)::setMap;
@@ -121,13 +131,22 @@ public class GameScreen extends ScreenAdapter {
         tiledService.setMap(tiledMap);
         game.setInputProcessor(stage);
 
-       
-        
-        
+
+
+
 
 
         restartButton.addListener(new InputListener(){
-            
+
+            /**
+             * Handles user input
+             * @param event event that has triggered method call
+             * @param x position of input
+             * @param y position of input
+             * @param pointer
+             * @param button what was pressed
+             * @return success of event input
+             */
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 restart();
@@ -135,7 +154,7 @@ public class GameScreen extends ScreenAdapter {
             }
         });
         pauseButton.addListener(new InputListener(){
-            
+
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 paused=!paused;
@@ -145,7 +164,7 @@ public class GameScreen extends ScreenAdapter {
             }
         });
          resumeButton.addListener(new InputListener(){
-            
+
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 paused=!paused;
@@ -154,17 +173,25 @@ public class GameScreen extends ScreenAdapter {
                 return true;
             }
         });
-        
+
     }
 
+    /**
+     * Removes screen when changing to another current screen
+     */
     @Override
     public void hide() {
         engine.removeAllEntities();
     }
 
+
+    /**
+     * Renders game screen
+     * @param delta The time in seconds since the last render.
+     */
     @Override
     public void render(float delta) {
-        
+
 
         delta = Math.min(delta, 1/30f);
         timer.update(delta);
@@ -175,17 +202,20 @@ public class GameScreen extends ScreenAdapter {
     }
  if(paused){
         batch.begin();
-        batch.setColor(1f, 1f, 1f, 0.7f); 
+        batch.setColor(1f, 1f, 1f, 0.7f);
         batch.draw(pauseScreen,0, 0, worldWidth, worldHeight);
         batch.setColor(1f, 1f, 1f, 1f);
         batch.end();
         pstage.act(delta);
         pstage.draw();
     }
-        
+
 
     }
 
+    /**
+     * Release resources of game screen
+     */
     @Override
     public void dispose() {
         for (EntitySystem system: engine.getSystems()){
@@ -195,16 +225,22 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
-      @Override
+    /**
+     * Pauses game
+     */
+    @Override
     public void pause() {
         pstage.addActor(resumeButton);
         pstage.addActor(restartButton);
         pauseButton.remove();
         timer.pause();
-        
-        
+
+
     }
 
+    /**
+     * Unpauses game
+     */
     @Override
     public void resume() {
          stage.addActor(pauseButton);
@@ -213,6 +249,9 @@ public class GameScreen extends ScreenAdapter {
         timer.unpause();
     }
 
+    /**
+     * Restarts game
+     */
     public void restart() {
 
     }
