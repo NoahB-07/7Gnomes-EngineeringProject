@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class Inventory {
     private final ArrayList<Item> items;
@@ -23,8 +22,8 @@ public class Inventory {
             inventorySlots[i] = new Image();
         }
         inventoryBar = new Image(new Texture("InventoryBar.png"));
-        inventoryBar.setScale(0.035f);
-        inventoryBar.setPosition(viewport.getWorldWidth() * 0.25f, viewport.getWorldHeight() * 0.02f);
+        inventoryBar.setScale(0.07f);
+        inventoryBar.setPosition(viewport.getWorldWidth() * 0.39f, viewport.getWorldHeight() * 0.26f);
         inventorySlots[0].setPosition(25, 25);
         inventorySlots[1].setPosition(89, 25);
         inventorySlots[2].setPosition(153, 25);
