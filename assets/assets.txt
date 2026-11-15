@@ -19,6 +19,7 @@ atlas/Game_Atlas.atlas
 atlas/Game_Atlas.png
 dot.png
 greybox.png
+temp_goose_sprite.png
 ui/font-list.fnt
 ui/font-subtitle.fnt
 ui/font-window.fnt

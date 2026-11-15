@@ -1,5 +1,8 @@
 package com.seven_gnomes.Systems;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -13,7 +16,14 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Box2D;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import com.seven_gnomes.Components.Goose;
 import com.seven_gnomes.Components.Move;
 import com.seven_gnomes.Components.Timer;
@@ -21,12 +31,16 @@ import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.GameMain;
 import com.seven_gnomes.Assets.GooseFactory;
 import com.seven_gnomes.Input.Controller;
+import com.seven_gnomes.map.BuildingMap;
 
-public class GooseSystem extends IteratingSystem {
+public class GooseSystem extends IteratingSystem implements Disposable {
     private Engine engine;
 
-    private static final float MAX_VELOCITY = 10f;
-    private Vector2 targetPosition = new Vector2();
+    private final Vector2 targetPosition = new Vector2();
+    private final World physicsWorld;
+    private final Map<Entity, Body> gooseBodies = new IdentityHashMap<>();
+    private final Map<Entity, Body> playerBodies = new IdentityHashMap<>();
+    private final Array<Body> mapBodies = new Array<>();
 
     private static final int MAX_GEESE = 40;
     private static final int INITIAL_SPAWN_COUNT = 5;
@@ -42,11 +56,17 @@ public class GooseSystem extends IteratingSystem {
 
     public GooseSystem(Timer timer, TextureRegion gooseTexture) {
         super(Family.all(Goose.class, Transform.class, Move.class).get());
+        Box2D.init();
+        physicsWorld = new World(new Vector2(), true);
         this.spawnTimer = timer;
         this.gooseTexture = gooseTexture;
     }
 
-    public void setMap(TiledMap map) {
+    public void setMap(TiledMap map, BuildingMap buildingMap) {
+        for (Body body : mapBodies) {
+            physicsWorld.destroyBody(body);
+        }
+        mapBodies.clear();
         spawnPositions.clear();
         MapLayer spawnLayer = map.getLayers().get("spawns");
 
@@ -59,9 +79,32 @@ public class GooseSystem extends IteratingSystem {
                 spawnPositions.add(pos);
             }
         }
+
+        for (Rectangle solid : buildingMap.getSolids()) {
+            createMapFixture(solid);
+        }
+    }
+
+    private void createMapFixture(Rectangle bounds) {
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        Body body = physicsWorld.createBody(bodyDef);
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(
+            bounds.width / 2f,
+            bounds.height / 2f,
+            new Vector2(bounds.x + bounds.width / 2f, bounds.y + bounds.height / 2f),
+            0f
+        );
+        body.createFixture(shape, 0f);
+        shape.dispose();
+        mapBodies.add(body);
     }
 
     private void spawnGooseWave(int amount) {
+        if (spawnPositions.size == 0) {
+            throw new IllegalStateException("map has no goose spawn positions");
+        }
         for (int i = 0; i < amount; i++) {
             Vector2 spawnPosition = spawnPositions.get(MathUtils.random(spawnPositions.size - 1));
             GooseFactory.createGoose(
@@ -101,6 +144,89 @@ public class GooseSystem extends IteratingSystem {
             targetPosition.set(Transform.MAPPER.get(players.first()).getPosition());
             super.update(deltaTime);
         }
+
+        for (Entity player : players) {
+            Transform transform = Transform.MAPPER.get(player);
+            Body body = playerBodies.get(player);
+            if (body == null) {
+                body = createPlayerBody(transform);
+                playerBodies.put(player, body);
+            } else {
+                body.setTransform(
+                    transform.getPosition().x + transform.getSize().x / 2f,
+                    transform.getPosition().y + transform.getSize().y / 2f,
+                    0f
+                );
+            }
+        }
+
+        ImmutableArray<Entity> geese = engine.getEntitiesFor(Family.all(Goose.class, Transform.class, Move.class).get());
+        for (Entity goose : geese) {
+            Body body = gooseBodies.get(goose);
+            if (body == null) {
+                body = createGooseBody(goose);
+                gooseBodies.put(goose, body);
+            }
+
+            Transform transform = Transform.MAPPER.get(goose);
+            body.setTransform(
+                transform.getPosition().x + transform.getSize().x / 2f,
+                transform.getPosition().y + transform.getSize().y / 2f,
+                0f
+            );
+            body.setLinearVelocity(0f, 0f);
+        }
+
+        physicsWorld.step(deltaTime, 6, 2);
+
+        for (Entity goose : geese) {
+            Body body = gooseBodies.get(goose);
+            Transform transform = Transform.MAPPER.get(goose);
+            transform.getPosition().set(
+                body.getPosition().x - transform.getSize().x / 2f,
+                body.getPosition().y - transform.getSize().y / 2f
+            );
+        }
+    }
+
+    private Body createGooseBody(Entity entity) {
+        Transform transform = Transform.MAPPER.get(entity);
+        Vector2 size = transform.getSize();
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(
+            transform.getPosition().x + size.x / 2f,
+            transform.getPosition().y + size.y / 2f
+        );
+        bodyDef.fixedRotation = true;
+        Body body = physicsWorld.createBody(bodyDef);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(size.x / 2f, size.y / 2f);
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 0.2f;
+        body.createFixture(fixtureDef);
+        shape.dispose();
+        return body;
+    }
+
+    private Body createPlayerBody(Transform transform) {
+        Vector2 size = transform.getSize();
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(
+            transform.getPosition().x + size.x / 2f,
+            transform.getPosition().y + size.y / 2f
+        );
+        Body body = physicsWorld.createBody(bodyDef);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(size.x / 2f, size.y / 2f);
+        body.createFixture(shape, 0f);
+        shape.dispose();
+        return body;
     }
 
     @Override
@@ -108,6 +234,11 @@ public class GooseSystem extends IteratingSystem {
         Transform transform = Transform.MAPPER.get(entity);
         Move move = Move.MAPPER.get(entity);
 
-        move.getDirection().set((targetPosition).sub(transform.getPosition()));
+        move.getDirection().set(targetPosition).sub(transform.getPosition());
+    }
+
+    @Override
+    public void dispose() {
+        physicsWorld.dispose();
     }
 }

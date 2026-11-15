@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -23,24 +24,24 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.seven_gnomes.Assets.Inventory;
+import com.seven_gnomes.Assets.Item;
 import com.seven_gnomes.Components.Timer;
 import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.GameMain;
-import com.seven_gnomes.Assets.Inventory;
-import com.seven_gnomes.Assets.Item;
 import com.seven_gnomes.Input.Controller;
 import com.seven_gnomes.Input.GameControllerState;
 import com.seven_gnomes.Input.IdleControllerState;
 import com.seven_gnomes.Input.KeyboardController;
-import com.seven_gnomes.map.BuildingMap;
-import com.seven_gnomes.map.MapAsset;
-import com.seven_gnomes.map.MapMarker;
-import com.seven_gnomes.Systems.RenderSystem;
 import com.seven_gnomes.Systems.ControllerSystem;
 import com.seven_gnomes.Systems.GooseSystem;
 import com.seven_gnomes.Systems.MoveSystem;
+import com.seven_gnomes.Systems.RenderSystem;
 import com.seven_gnomes.Tiled.TiledAshleyUtils;
 import com.seven_gnomes.Tiled.TiledService;
+import com.seven_gnomes.map.BuildingMap;
+import com.seven_gnomes.map.MapAsset;
+import com.seven_gnomes.map.MapMarker;
 
 
 public class GameScreen extends ScreenAdapter {
@@ -54,6 +55,7 @@ public class GameScreen extends ScreenAdapter {
     private final Stage stage;
     private final Stage pstage;
     private final Texture pauseScreen;
+    private final Texture gooseTexture;
     private final Engine engine;
     private final TiledService tiledService;
     private final TiledAshleyUtils tiledAshleyUtils;
@@ -85,10 +87,11 @@ public class GameScreen extends ScreenAdapter {
         pauseScreen=new Texture("Pause.png");
         // placeholder till items team has real icons
         placeholderIcon = new Texture("dot.png");
-        gooseSystem = new GooseSystem(timer, null); // Still needs texture
-        engine.addSystem(gooseSystem);
+        gooseTexture = new Texture("temp_goose_sprite.png");
+        gooseSystem = new GooseSystem(timer, new TextureRegion(gooseTexture)); // Still needs texture
         engine.addSystem(new ControllerSystem());
         engine.addSystem(new MoveSystem());
+        engine.addSystem(gooseSystem);
         engine.addSystem(new RenderSystem(batch, viewport, camera));
         keyboardController = new KeyboardController(GameControllerState.class, engine, inventory);
         players = engine.getEntitiesFor(Family.all(Controller.class, Transform.class).get());
@@ -140,7 +143,7 @@ public class GameScreen extends ScreenAdapter {
         TiledMap tiledMap = tiledService.loadMap(MapAsset.MAIN);
         buildingMap = new BuildingMap(tiledMap, GameMain.UNIT_SCALE);
         engine.getSystem(MoveSystem.class).setMap(buildingMap);
-        gooseSystem.setMap(tiledMap);
+        gooseSystem.setMap(tiledMap, buildingMap);
         tiledService.setMap(tiledMap);
         game.setInputProcessor(stage, keyboardController);
 
@@ -215,6 +218,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         placeholderIcon.dispose();
+        gooseTexture.dispose();
         for (EntitySystem system: engine.getSystems()){
             if (system instanceof Disposable disposableSystem){
                 disposableSystem.dispose();
