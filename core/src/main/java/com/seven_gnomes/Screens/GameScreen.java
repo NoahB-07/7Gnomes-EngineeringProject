@@ -59,7 +59,6 @@ public class GameScreen extends ScreenAdapter {
     private final Engine engine;
     private final TiledService tiledService;
     private final TiledAshleyUtils tiledAshleyUtils;
-    private final GooseSystem gooseSystem;
     final GameMain game;
     final Timer timer;
     final Inventory inventory;
@@ -80,29 +79,34 @@ public class GameScreen extends ScreenAdapter {
         engine = new Engine();
         tiledAshleyUtils = new TiledAshleyUtils(engine,game.getAssetService());
         FitViewport viewport = game.getViewport();
-        batch =game.getBatch();
-        OrthographicCamera camera = game.getCamera();
+        batch = game.getBatch();
         worldWidth = viewport.getWorldWidth();
         worldHeight = viewport.getWorldHeight();
         pauseScreen=new Texture("Pause.png");
+
+        // camera
+        OrthographicCamera camera = game.getCamera();
+        camera.zoom -= 0.5f;
+
         // placeholder till items team has real icons
         placeholderIcon = new Texture("dot.png");
         gooseTexture = new Texture("temp_goose_sprite.png");
-        gooseSystem = new GooseSystem(timer, new TextureRegion(gooseTexture)); // Still needs texture
-        engine.addSystem(new ControllerSystem());
+
+        // ECS
+        engine.addSystem(new ControllerSystem(game));
         engine.addSystem(new MoveSystem());
-        engine.addSystem(gooseSystem);
+        engine.addSystem(new GooseSystem(timer, new TextureRegion(gooseTexture)));
         engine.addSystem(new RenderSystem(batch, viewport, camera));
         keyboardController = new KeyboardController(GameControllerState.class, engine, inventory);
         players = engine.getEntitiesFor(Family.all(Controller.class, Transform.class).get());
 
-        /// buttons
+        // buttons
         stage = new Stage(viewport, batch);
         pstage = new Stage(viewport, batch);
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         skin.getFont("default").getData().setScale(0.15f);
 
-        pauseButton = new TextButton("Pause",skin,"text");
+        pauseButton = new TextButton("PAUSE",skin,"text");
         resumeButton = new TextButton("RESUME", skin, "text");
         restartButton = new TextButton("RESTART", skin, "text");
 
@@ -128,10 +132,7 @@ public class GameScreen extends ScreenAdapter {
         }
 
 
-        ///pause end
-
-
-
+        //pause end
     }
 
     @Override
@@ -143,12 +144,9 @@ public class GameScreen extends ScreenAdapter {
         TiledMap tiledMap = tiledService.loadMap(MapAsset.MAIN);
         buildingMap = new BuildingMap(tiledMap, GameMain.UNIT_SCALE);
         engine.getSystem(MoveSystem.class).setMap(buildingMap);
-        gooseSystem.setMap(tiledMap, buildingMap);
+        engine.getSystem(GooseSystem.class).setMap(tiledMap, buildingMap);
         tiledService.setMap(tiledMap);
         game.setInputProcessor(stage, keyboardController);
-
-
-
 
 
 
@@ -232,7 +230,7 @@ public class GameScreen extends ScreenAdapter {
         pstage.addActor(restartButton);
         pauseButton.remove();
         timer.pause();
-        // stop moving while paused
+        // stop moving while paused - Should make a new controller maybe?
         keyboardController.setActiveState(IdleControllerState.class);
 
 
@@ -247,7 +245,7 @@ public class GameScreen extends ScreenAdapter {
         keyboardController.setActiveState(GameControllerState.class);
     }
 
-    // standing under a locker gives an item if theres room
+    // standing under a locker gives an item if there's room
     private void checkLockers() {
         if (buildingMap == null || players.size() == 0 || inventory.getItems().size() >= 5) return;
         Transform transform = Transform.MAPPER.get(players.first());

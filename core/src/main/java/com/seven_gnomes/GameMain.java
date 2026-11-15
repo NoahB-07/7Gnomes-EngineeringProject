@@ -33,8 +33,6 @@ public class GameMain extends Game {
 
 
     private Texture startBackground;
-    private Timer timer;
-    private Inventory inventory;
     private SpriteBatch batch;
     private FitViewport viewport;
     private OrthographicCamera camera;
@@ -59,11 +57,11 @@ public class GameMain extends Game {
         assetService = new AssetService(new InternalFileHandleResolver());
         glProfiler = new GLProfiler(Gdx.graphics);
         fpsLogger = new FPSLogger();
-        timer = new Timer(viewport);
-        inventory = new Inventory(viewport);
+        Timer timer = new Timer(viewport);
+        Inventory inventory = new Inventory(viewport);
         glProfiler.enable();
         addScreen(new StartScreen(this));
-        addScreen(new GameScreen(this, timer,inventory));
+        addScreen(new GameScreen(this, timer, inventory));
         setScreen(StartScreen.class);
     }
 

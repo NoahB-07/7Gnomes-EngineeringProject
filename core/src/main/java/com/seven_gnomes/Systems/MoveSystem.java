@@ -10,7 +10,7 @@ import com.seven_gnomes.Components.Transform;
 import com.seven_gnomes.map.BuildingMap;
 
 public class MoveSystem extends IteratingSystem {
-    private Vector2 normalisedDirection = new Vector2();
+    private final Vector2 normalisedDirection = new Vector2();
     private final Rectangle feet = new Rectangle();
     private BuildingMap map;
 

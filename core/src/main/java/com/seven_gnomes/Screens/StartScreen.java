@@ -32,7 +32,7 @@ public class StartScreen extends ScreenAdapter{
 
 public StartScreen(final GameMain game) {
         this.game = game;
-    Engine engine = new Engine();
+        Engine engine = new Engine();
         viewport = game.getViewport();
         batch =game.getBatch();
         OrthographicCamera camera = game.getCamera();
@@ -44,23 +44,16 @@ public StartScreen(final GameMain game) {
         stage = new Stage(viewport, batch);
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
-
         startButton = new ImageButton(skin);
-
         startButton.getStyle().imageUp = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("StartButton.png"))));
         startButton.setSize(worldWidth * 0.19f,worldHeight *0.07f);
         startButton.setPosition(worldWidth / 2f - startButton.getWidth() / 2f,worldHeight*0.63f - startButton.getHeight() / 2f);
         stage.addActor(startButton);
-
-
-
-
-
     }
+
    @Override
     public void render(float delta) {
         draw();
-
     }
 
  @Override

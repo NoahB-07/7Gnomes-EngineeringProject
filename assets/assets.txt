@@ -18,7 +18,12 @@ StartButton.png
 atlas/Game_Atlas.atlas
 atlas/Game_Atlas.png
 dot.png
+goose_sprites/Flap.png
+goose_sprites/Idle.png
+goose_sprites/Run.png
+goose_sprites/Walk.png
 greybox.png
+key.png
 temp_goose_sprite.png
 ui/font-list.fnt
 ui/font-subtitle.fnt

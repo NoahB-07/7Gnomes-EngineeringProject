@@ -6,8 +6,10 @@ public enum Command {
     UP,
     DOWN,
     SELECT,
-    CANCEL
-
-
-
+    CANCEL,
+    USE_ITEM_ONE,
+    USE_ITEM_TWO,
+    USE_ITEM_THREE,
+    USE_ITEM_FOUR,
+    PAUSE, USE_ITEM_FIVE
 }
