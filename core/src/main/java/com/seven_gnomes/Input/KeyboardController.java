@@ -7,10 +7,10 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.seven_gnomes.Inventory;
+import com.seven_gnomes.Assets.Inventory;
 
 public class KeyboardController extends InputAdapter {
-    
+
 
 
     private static final Map<Integer, Command> KEY_MAPPING = Map.ofEntries(
@@ -19,33 +19,35 @@ public class KeyboardController extends InputAdapter {
         Map.entry(Input.Keys.S, Command.DOWN),
         Map.entry(Input.Keys.D, Command.RIGHT),
         Map.entry(Input.Keys.SPACE, Command.SELECT),
-        Map.entry(Input.Keys.ESCAPE, Command.CANCEL)
-        
-
+        Map.entry(Input.Keys.ESCAPE, Command.PAUSE),
+        Map.entry(Input.Keys.E, Command.USE_ITEM_ONE),
+        Map.entry(Input.Keys.NUM_2, Command.USE_ITEM_TWO),
+        Map.entry(Input.Keys.NUM_3, Command.USE_ITEM_THREE),
+        Map.entry(Input.Keys.NUM_4, Command.USE_ITEM_FOUR),
+        Map.entry(Input.Keys.NUM_5, Command.USE_ITEM_FIVE)
     );
 
 
     private final boolean[] commandState;
-    private final Map<Class<? extends ControllerState>, ControllerState> stateCashe;
+    private final Map<Class<? extends ControllerState>, ControllerState> stateCache;
     private ControllerState activeState;
-    private Inventory inventory;
+    private final Inventory inventory;
 
-    public KeyboardController(Class<? extends ControllerState> intialState, Engine engine, Inventory inventory){
-        stateCashe = new HashMap<>();
+    public KeyboardController(Class<? extends ControllerState> initialState, Engine engine, Inventory inventory){
+        stateCache = new HashMap<>();
         activeState = null;
         commandState = new boolean[Command.values().length];
         this.inventory = inventory;
 
-
-        stateCashe.put(IdleControllerState.class,new IdleControllerState());
-        stateCashe.put(GameControllerState.class, new GameControllerState(engine));
-        setActiveState(intialState);
+        stateCache.put(IdleControllerState.class,new IdleControllerState());
+        stateCache.put(GameControllerState.class, new GameControllerState(engine));
+        setActiveState(initialState);
     }
 
     public void setActiveState(Class<? extends ControllerState> stateClass) {
-        ControllerState controllerState = stateCashe.get(stateClass);
+        ControllerState controllerState = stateCache.get(stateClass);
         if (controllerState == null){
-            throw new GdxRuntimeException("No state with class " + stateClass + " found in state cashe");
+            throw new GdxRuntimeException("No state with class " + stateClass + " found in state cache");
         }
 
         for (Command command : Command.values()) {
@@ -54,7 +56,6 @@ public class KeyboardController extends InputAdapter {
             }
             commandState[command.ordinal()] = false;
         }
-
         activeState = controllerState;
     }
 
@@ -66,31 +67,26 @@ public class KeyboardController extends InputAdapter {
 
         commandState[command.ordinal()] = true;
         activeState.keyDown(command);
-        
+
         switch (keycode) {
-
-        case Input.Keys.NUM_1:
-            inventory.useItem(0);
-            return true;
-
-        case Input.Keys.NUM_2:
-            inventory.useItem(1);
-            return true;
-
-        case Input.Keys.NUM_3:
-            inventory.useItem(2);
-            return true;
-
-        case Input.Keys.NUM_4:
-            inventory.useItem(3);
-            return true;
-
-        case Input.Keys.NUM_5:
-            inventory.useItem(4);
-            return true;
-    }
-
-        
+            case Input.Keys.NUM_1 -> {
+                inventory.useItem(0);
+            }
+            case Input.Keys.NUM_2 -> {
+                inventory.useItem(1);
+            }
+            case Input.Keys.NUM_3 -> {
+                inventory.useItem(2);
+            }
+            case Input.Keys.NUM_4 -> {
+                inventory.useItem(3);
+            }
+            case Input.Keys.NUM_5 -> {
+                inventory.useItem(4);
+            }
+            default -> {
+            }
+        }
         return true;
     }
 
