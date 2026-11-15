@@ -63,7 +63,6 @@ public class GameScreen extends ScreenAdapter {
     private final Engine engine;
     private final TiledService tiledService;
     private final TiledAshleyUtils tiledAshleyUtils;
-    private final GooseSystem gooseSystem;
     final GameMain game;
     final Timer timer;
     final Inventory inventory;
@@ -86,23 +85,29 @@ public class GameScreen extends ScreenAdapter {
         this.timer = timer;
         this.inventory = inventory;
         tiledService = new TiledService(game.getAssetService());
-        engine = new Engine();
-        tiledAshleyUtils = new TiledAshleyUtils(engine,game.getAssetService());
         FitViewport viewport = game.getViewport();
         batch =game.getBatch();
-        OrthographicCamera camera = game.getCamera();
         worldWidth = viewport.getWorldWidth();
         worldHeight = viewport.getWorldHeight();
         pauseScreen=new Texture("Pause.png");
+
         // placeholder till items team has real icons
         placeholderIcon = new Texture("dot.png");
         keyTexture = new Texture("key.png");
         gooseTexture = new Texture("temp_goose_sprite.png");
-        gooseSystem = new GooseSystem(timer, new TextureRegion(gooseTexture)); // Still needs texture
-        engine.addSystem(new ControllerSystem());
+
+        // Camera
+        OrthographicCamera camera = game.getCamera();
+        camera.zoom -= 0.5f;
+
+        // ECS
+        engine = new Engine();
+        tiledAshleyUtils = new TiledAshleyUtils(engine,game.getAssetService());
+        engine.addSystem(new ControllerSystem(game));
         engine.addSystem(new MoveSystem());
-        engine.addSystem(gooseSystem);
+        engine.addSystem(new GooseSystem(timer, new TextureRegion(gooseTexture)));
         engine.addSystem(new RenderSystem(batch, viewport, camera));
+
         keyboardController = new KeyboardController(GameControllerState.class, engine, inventory);
         players = engine.getEntitiesFor(Family.all(Controller.class, Transform.class).get());
 
@@ -153,7 +158,7 @@ public class GameScreen extends ScreenAdapter {
         TiledMap tiledMap = tiledService.loadMap(MapAsset.MAIN);
         buildingMap = new BuildingMap(tiledMap, GameMain.UNIT_SCALE);
         engine.getSystem(MoveSystem.class).setMap(buildingMap);
-        gooseSystem.setMap(tiledMap, buildingMap);
+        engine.getSystem(GooseSystem.class).setMap(tiledMap, buildingMap);
         tiledService.setMap(tiledMap);
         spawnKeys();
         game.setInputProcessor(stage, keyboardController);
