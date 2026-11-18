@@ -94,7 +94,7 @@ public class GameScreen extends ScreenAdapter {
     private final IntMap<Entity> keysOnMap = new IntMap<>();
     private final IntSet keysHeld = new IntSet();
     private final Rectangle keyBounds = new Rectangle();
-    private boolean escaped;
+    private boolean escaped = false;
 
 
 
@@ -153,7 +153,7 @@ public class GameScreen extends ScreenAdapter {
 
         pauseButton.setSize(worldWidth * 0.07f,worldHeight*0.08f );
         pauseButton.setPosition(worldWidth *0.65f ,worldHeight*0.7f);
-        
+
         resumeButton = new TextButton("RESUME", skin, "text");
         restartButton = new TextButton("RESTART", skin, "text");
 
@@ -164,7 +164,7 @@ public class GameScreen extends ScreenAdapter {
         restartButton.setPosition(worldWidth*0.3f,worldHeight*0.35f);
 
         resumeButton.getStyle().fontColor = Color.WHITE;
-    
+
         resumeButton.getLabel().setFontScale(0.12f);
         restartButton.getLabel().setFontScale(0.12f);
 
@@ -278,10 +278,9 @@ public class GameScreen extends ScreenAdapter {
         updateSandwichSlot();
         resetCamera();
         if(getPlayerHealth()<=0 || timer.getTimePassed()==300){
-            game.setPlayerEscaped(false);
             endGame();
         }
-        
+
         if (!paused) {
             stage.act(delta);
             stage.draw();
@@ -379,7 +378,6 @@ public class GameScreen extends ScreenAdapter {
     private void spawnKeys() {
         keysOnMap.clear();
         keysHeld.clear();
-        escaped = false;
         TextureRegion region = keySpin.getKeyFrame(0f);
         for (MapMarker spot : buildingMap.getKeySpots()) {
             // same pixel size as the map art
@@ -418,7 +416,7 @@ public class GameScreen extends ScreenAdapter {
         }
         if (buildingMap.isAtExit(playerFeet)) {
             escaped = true;
-            game.setPlayerEscaped(true);
+            game.setPlayerEscapedTrue();
             Gdx.app.log("Keys", "escaped through the exit");
             endGame();
         }
@@ -427,6 +425,7 @@ public class GameScreen extends ScreenAdapter {
     public boolean hasEscaped() {
         return escaped;
     }
+
     public void endGame(){
         game.getCamera().zoom += 0.5f;
         stage.dispose();

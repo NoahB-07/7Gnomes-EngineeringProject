@@ -1,0 +1,47 @@
+@startuml
+top to bottom direction
+skinparam linetype ortho
+
+interface Asset<T> << interface >> {
+   descriptor: AssetDescriptor<T>
+}
+class AssetService {
+  + AssetService(FileHandleResolver):
+  + unload(Asset<T>): void
+  + queue(Asset<T>): void
+  + debugDiagnositis(): void
+  + update(): boolean
+  + load(Asset<T>): T
+  + dispose(): void
+  + getAsset(Asset<T>): T
+}
+class GooseFactory {
+  + GooseFactory():
+  + createGoose(Engine, TextureRegion, Vector2, int, Vector2, Vector2): Entity
+}
+class Inventory {
+  + Inventory(FitViewport):
+  - items: ArrayList<Item>
+  - slotCounts: Label[]
+  - inventorySlots: Image[]
+  + removeItem(Item): void
+  + addItem(Item): void
+  + useItem(int): void
+  + updateIcons(): void
+   slotCounts: Label[]
+   items: ArrayList<Item>
+   inventBar: Image
+   inventorySlots: Image[]
+}
+class Item {
+  + Item(String, Texture):
+  - icon: Texture
+  - count: int
+  + use(): void
+   count: int
+   icon: Texture
+}
+
+AssetService  -[#595959,dashed]->  Asset
+Inventory    "1" *-[#595959,plain]-> "items\n*" Item
+@enduml

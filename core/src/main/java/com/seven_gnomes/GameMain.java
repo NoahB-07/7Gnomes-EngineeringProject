@@ -37,7 +37,7 @@ public class GameMain extends Game {
     private GLProfiler glProfiler;
     private FPSLogger fpsLogger;
     private InputMultiplexer inputMultiplexer;
-    private boolean playerEscaped;
+    private boolean playerEscaped = false;
     private int cornUsed;
     private int finalTime;
 
@@ -130,8 +130,8 @@ public class GameMain extends Game {
             inputMultiplexer.addProcessor(processor);
         }
     }
-    public void setPlayerEscaped(boolean escaped) {
-    this.playerEscaped = escaped;
+    public void setPlayerEscapedTrue() {
+    this.playerEscaped = true;
 }
 
     public boolean hasPlayerEscaped() {
